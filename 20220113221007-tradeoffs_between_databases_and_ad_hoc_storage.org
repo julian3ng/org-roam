@@ -1,0 +1,30 @@
+:PROPERTIES:
+:ID:       49e9e046-6d2b-4c7f-819a-f1bafcade0e6
+:END:
+#+title: Tradeoffs Between Databases and Ad Hoc Storage
+* Advantages of Databases
+** Databases are self describing
+   The schema of a database table includes the types and attribute names for
+   every data instance. This schema is stored as metadata in the database
+   catalog. Contrast this with a normal application's storage - the files may be
+   binary and likely have no type information until they're read.
+** Databases enable independence
+   Program-data independence means that when the data schema changes, the
+   program probably won't change all that much.
+
+   Program-operation independence means that when the implementation of an
+   operation changes, the program probably won't change all that much.
+
+   Both of these independences are made possible by the database providing *data
+   abstraction*, which hides the storage and operation details from the
+   application using the database.
+
+   An application storing data without a database will be intimately tied to the
+   data format and operations on that data format.
+* Disadvantages of Databases
+** Overhead
+   Realtime, embedded, and small applications either can't handle or don't need
+   the overhead maintaining a database requires. Sometimes an application simply
+   does not need the generality provided by a database. In these cases, the
+   investment to understand and use a database is unnecessary.
+

@@ -1,0 +1,68 @@
+:PROPERTIES:
+:ID:       e5347f94-0e97-4fb3-a495-7b4222cc2dd4
+:END:
+#+title: How to Take Notes
+#+filetags: :notetaking:
+* Why a Slipbox?
+  The overall goal of the slipbox notetaking process is to create a densely
+  connected network of notes. Both the content we read, and the surrounding
+  context, be it support, criticism, or otherwise, should be noted. The notes
+  and their connections serve both as a mental model and as a place to
+  externalize our thinking - the slipbox holds the detail, while our brain holds
+  the greater picture. Externalizing our thinking lets us see connections that
+  we might not while focused on holding things in our head. This also lets us
+  take breaks without losing our place.
+* How does this differ from normal note taking?
+  This slipboxing process differs from the normal top-down view of
+  "take notes on each lecture, separated by topic, subtopic, etc.",
+  instead preferring "take and connect notes on information you
+  ingest, and grow topics from the mass." This bottom-up process
+  avoids artificially induced separations, enabling cross-domain
+  insights to arise. Eventually we'll have a store of information that
+  we can bounce new information off of.
+* How does this differ from the normal writing process?
+  We want to frontload our writing process. Much of our writing will
+  happen during the note taking process - this is one reason why our
+  permanent notes will be considered so thoroughly before adding them
+  to the slipbox. Starting from our slipbox is much easier than
+  starting from a blank page.
+* The Process of Notetaking
+  1) Fleeting notes: take notes on thoughts you have whenever you have
+     them
+  2) Literature notes: take SHORT notes on whatever you're reading.
+     - Short means something like: on page /x/ it says /y/, and
+       perhaps some elaboration. Don't go too crazy.
+  3) Permanent notes: take your fleeting and literature notes and
+     collect the ideas that pertain to whatever you're learning.
+     - Things to consider about the new information:
+       - *Do you understand the information?* Restating things in your
+         own words will ensure this.
+       - Does it agree with, disagree with, correct, support, etc. the
+         existing knowledge in your box?
+       - Are there any new ideas that arise out of combining this
+         information with your current notes?
+       - Are there any questions that arise?
+  4) File permanent notes: look through existing notes and find where
+     the new ones can be linked and how they should be tagged.
+     - Link with context - why is the link important? Does the linked
+       note agree/disagree/correct/support/etc with the existing note?
+     - Link back to a topic index, if one exists.
+     - When tagging new notes, use words that have to do with how they
+       should be recalled.
+  5) Build on what you have:
+     - Topics will eventually arise out of what you've
+       accumulated. When you see several coherent notes coming
+       together, add a topic page as an entry point with links to the
+       relevant notes and a summary of your understanding of the
+       topic.
+     - Ideas, hypotheses, and questions will come up as well. Have
+       them as TODO items in org-roam and peruse them when adding
+       permanent notes.
+* The Process of Writing
+  1) Identify what you have: pick out notes relating to the idea you
+     want to write about. The idea should come from the box naturally,
+     not from random brainstorming. You'll then arrange the notes
+     logically and fix any missing or duplicate information.
+  2) Rough draft: make your notes presentable and arranged so as to
+     support your argument.
+  3) Edit, proofread, edit, proofread, until you publish!

@@ -1,0 +1,49 @@
+:PROPERTIES:
+:ID:       30dca656-922c-42ea-afc5-9aacf39574e0
+:END:
+#+title: Dijkstra's Algorithm
+* Let's remember how to Dijkstra
+** General Idea
+   - Starting at some node =s=, we want to find the minimum distance
+     to all nodes.
+   - To do this, we need to keep track of:
+     1) What nodes we've visited
+     2) How far we think all nodes are
+     3) (optional) What a node's predecessor is
+   - Starting with the start node =s=:
+     - We can say it's visited
+     - We know that its distance is 0
+     - We know it has no predecessor
+   - We now consider its neighbors. For each neighbor =n=:
+     - !!!!!! THIS ISN'T VISITING !!!!!!
+     - We can check the distance it would have if we were to go
+       through our current location. This is (distance to current
+       location) + (cost from current location to neighbor =n=).
+     - If this distance is less than we currently have for that node,
+       we can update the distance fort hat node and update the
+       predecessor to point at our current location.
+   - Having processed the start node, we continue and get the minimum
+     distanced node from the unvisited nodes.
+   - Continue until there are no unvisited nodes, or when we reach a
+     targeted node (since we always go for the minimum distance path
+     first).
+** The tricky part
+   - The nasty part is getting the minimum-distanced node out of the
+     unvisited nodes.
+   - To implement:
+     - Maintain a minheap keyed to the distance of a node
+     - When updating a neighbor due to finding a shorter path, insert
+       that neighbor into the minheap
+       - Why doesn't this make multiple copies of that node in the
+         minheap????
+         - !!! IT DOES !!!
+         - If there are multiple paths to the node and the tentative
+           distance decreases, then multiple copies can end up in the minheap.
+         - How to solve:
+           - Keep hashmap of elements to index in minheap (as part of
+             data structure?)
+           - When we insert the element again, check against the
+             hashset and update its position in the heap instead of
+             adding it again
+         - Pretty sure this doesn't hurt except for the additional
+           space, but it's nice to be clean :)

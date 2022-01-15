@@ -1,0 +1,36 @@
+:PROPERTIES:
+:ID:       fd0a7d36-7f49-4123-ad4a-022b6b3d9b99
+:END:
+#+title: Relational Model
+* Relational Model
+  - Structure: a database table including its schema, its rows, all its indices.
+  - Constraints: the rules that aren't encoded in the database table proper -
+    email regex, earliest birthday, or hometown in US requirement are all
+    examples.
+  - Operations: actions on a database table - add/delete/get a row.
+    - There are two kinds of operations:
+      1) Algebra
+      2) Calculus - there are two kinds of calculus:
+         1) Tuple Calculus, aka SQL, represented by tuples of relations
+         2) Domain Calculus, aka QBE, represented by cells of domains (or types)
+
+  - More formally, the data structure of the relational model is just the
+    database table. A *domain* is a set of atomic values, also known as a type
+    (think integer, varchar, etc). A *relation* is a subset of the set of all
+    ordered n-tuples, where n is the number of domains. An *attribute* is a
+    unique name given to a domain (a column name in the table).
+
+    Each row is a tuple in a relation, which is itself the entire table. The
+    number of rows is known as the *cardinality*, and the number of columns the
+    *degree*.
+
+    Importantly, the order of rows and columns doesn't matter.
+
+  - Primary keys are used to uniquely identify a tuple in a relation. They
+    satisfy *entity integrity*, meaning primary keys cannot be NULL, and
+    *referential integrity*, meaning when used in another table, the other table
+    must use a subset of the existing primary key values. A table can only have
+    one primary key.
+
+  - A unique key, on the other hand, does not have these properties, only
+    enforcing uniqueness for that column. A table can have multiple unique keys.

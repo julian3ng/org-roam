@@ -1,0 +1,46 @@
+:PROPERTIES:
+:ID:       46819627-66b8-4d06-a44b-075da31b8d02
+:END:
+#+title: How to use info mode
+* Info mode quick tips!
+  - h: help!
+  - q: quit
+** Basic Navigation
+   - n, p: forwards/backwards at same level
+   - SPC, BACKSPACE: up/down in page, can cross node boundaries,
+     subnode first
+   - ]/[: backwards/forwards regardless of level
+** Menus and subnodes
+   - m: pick from menu (children of this node)
+     - TAB and M-TAB can be used to move around in menu as well
+   - u: up from subnode
+** Cross References
+   - RET (on reference): go to reference
+   - f: pick from node's references
+   - TAB/M-TAB: move around cross references (outside of menu)
+** History
+   - l: backwards in history
+   - r: forwards in history
+   - L: show history in node
+** Index
+   - i: pick from index
+   - d: go to directory
+   - t: go to top
+   - I: make node with result of index search
+** Search
+   - s: search through Info file
+   - C-s: incremental search, WILL GO THROUGH NODE BOUNDARIES
+   - C-r: backwards incsearch
+** Advanced
+   - g: goto node by name
+     - '*' as filename will show the whole file
+   - 1-9: goto menu item n
+   - 0: last menu item
+   - M-n: new info instance
+   - C-u m: menu in new instance
+   - C-u g: goto node by name in new instance
+   - [[info:info#Emacs Info Variables][Variables]]: chances are I won't use this, but it's good to have on hand
+
+
+   
+

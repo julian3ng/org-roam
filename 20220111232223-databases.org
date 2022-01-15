@@ -1,0 +1,105 @@
+:PROPERTIES:
+:ID:       d4ef8812-0a00-4dde-a166-60eca07388f2
+:END:
+#+title: Databases
+* Databases
+  A database is a [[id:90175857-4f5f-4020-b5e6-5a8d7145b4cf][Model]] of some structure of reality - personal user
+  information, book titles at a library, and network data from a router are all
+  such examples. It is a collection of related data representing some aspect of
+  the real world, also known as a *miniworld* or *universe of discourse*. Not to
+  be confused with a [[id:889b3e76-4c4a-4bb1-8102-50201c66b890][Data Model]].
+
+  Using a database standardizes the data and labels used across multiple
+  applications sharing it, reduces development time that would normally be used
+  for working out file formats, provides a flexible storage format that can
+  change when needed, makes data immediately available to many users
+  simultaneously, and remove redundancy in data, increasing consistency.
+
+  There are certain [[id:49e9e046-6d2b-4c7f-819a-f1bafcade0e6][Tradeoffs Between Databases and Ad Hoc Storage]].
+
+  One instance of a concrete database architecture is the [[id:cac137d6-88ec-4363-bf5f-6d43f5e5e2ec][ANSI/SPARC 3-Level DB]]
+
+** Types of database
+   There are many types of databases, from unstructured NoSQL databases to the
+   classical relational database. CS6400 focuses on the relational model, where
+   the database table is the primary data structure. Traditional databases have
+   text and numeric data. A *deductive database system* has rules to
+   automatically assign complex properties to entities.  Relatedly, *triggers*
+   are sets of instructions (*stored procedures*) that happen on certain
+   database events, like storing a row, which are used in *active database
+   systems*.
+
+** Database features
+   The database uses keys and IDs to speed up queries by providing a sort order.
+   IDs are used in *surrogate-based representation* to uniquely identify a
+   row. Contrast this with *name-based representation*, where the row properties
+   themselves identify a row. This can cause issues where some properties change,
+   leading to questions about which object the row refers to.
+
+   Integrity, whether or not the database reflects reality well; and consistency,
+   whether or not the database is internally consistent; are both desirable
+   properties in a database, aside from speed. *Referential integrity* requires
+   that all =x= relate to some =y=, and a *uniqueness constraint* requires that
+   all elements of a set be different. These two examples must be present in the
+   miniworld the database models for it to make sense.
+
+* Data Model
+  :PROPERTIES:
+  :ID:       889b3e76-4c4a-4bb1-8102-50201c66b890
+  :END:
+  Confusingly, a data model is the formalism used to create a model of data,
+  according to the CS6400 lectures. These include the data structures, integrity
+  constraints, and operations allowed. Different data models provide different
+  sets of these three items.
+
+  1) [[id:c1e04c0a-95fe-446a-ad53-c2a4a7ce8528][Enhanced Entity Relationshp Model]]
+  2) [[id:fd0a7d36-7f49-4123-ad4a-022b6b3d9b99][Relational Model]]
+  3) Hierarchical model
+     - Trees are the structure (like XML)
+
+* ANSI/SPARC 3-Level DB
+  :PROPERTIES:
+  :ID:       cac137d6-88ec-4363-bf5f-6d43f5e5e2ec
+  :END:
+
+  The database is separated into the schema, which refers to the types, and the
+  data. This separation increases the efficiency of queries. The schema in turn
+  is split in three - the *external schema* is how different applications
+  interface with the data. Each application sees a different view of the data
+  that is logically stored in the conceptual schema. The *conceptual schema* is
+  how we logically think of a database table. The *internal schema* defines how
+  the database is laid out physically - indices and the actual index structure
+  (like a B-tree) are included in this.
+
+  With these three layers, the concept of *physical data independence* and
+  *logical data independence* applies - the former being the degree to which we
+  can change the internal schema without changing the application, and the
+  latter the same for the conceptual schema.
+
+  The ANSI/SPARC DBMS Framework, adopted in 1975 has two parts: the schema
+  compiler, and the query transformer. The schema compiler has three humans
+  responsible for creating the database schemata: the enterprise administrator
+  develops the conceptual schema, the database administrator defines the
+  internal schema, and the application systems administrator defines the
+  external schema. These are all defined using the *data definition language
+  (DDL)*, and the internal and external schemata are checked against the
+  conceptual schema to ensure they make sense. Lastly, the three are stored in
+  the metadatabase.
+
+  Logically, the query transformer takes the user or application's query and
+  transforms it from a form the external schema understands to one the
+  conceptual can. The same transformation occurs with the conceptual query and
+  the internal schema into the operations to retrieve the data from the
+  OS. These transformations happen courtesy of rules derived from the
+  metadatabase. In reality, this would be slow.
+
+  User queries are actually compiled and optimized, then passed to the runtime
+  database processor for execution. Applications, on the other hand, use a
+  precompiler to generate hos tlanguage code and *database manipulation language
+  (DML)* code that in turn get combined into a compiled transaction, which,
+  again, is run by the runtime database processor.
+
+  Concurrency is managed by a separate subsystem to ensure queries and
+  transactions properly run.
+
+** TODO What is the difference between systems metadata and business metadata?

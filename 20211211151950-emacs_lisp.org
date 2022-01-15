@@ -1,0 +1,216 @@
+:PROPERTIES:
+:ID:       38f0948e-74d1-4bdf-80f1-950848c87bbc
+:END:
+#+title: Emacs Lisp
+* Introduction to Emacs Lisp
+  - It's pretty much the same as what you do with CL, but it also has
+    effects on Emacs
+  - Use the [[info:elisp#Top][Help Page]]! ([[id:46819627-66b8-4d06-a44b-075da31b8d02][How to use info mode]])
+** Moving line down function
+*** First attempt:
+     #+begin_src elisp
+       (defun move-line-down (count)
+         "Move the current line down"
+         (interactive "*p")  ; *p means "error if read-only, numeric prefix argument"
+         (let ((old-column (current-column)))
+           (push (point) buffer-undo-list)
+           (forward-line 1)
+           (transpose-lines count)
+           (forward-line -1)
+           (move-to-column old-column)))
+     #+end_src
+ 
+     The process of making this function:
+     1) Start with the basic interactive function
+     2) Quality of life improvements:
+        - Move the point back to the line that was just moved
+        - Restore the column
+     3) Generalize the function to move /n/ lines at a time
+     4) Make it work with undo (use buffer-undo-list)
+*** Second attempt: remove reliance on transpose-lines
+    - [[info:elisp#Deletion][info:elisp#Deletion]] for more deletion functions
+    - [[info:elisp#Excursions][info:elisp#Excursions]] for excursions beyond save-excursion
+    #+begin_src elisp
+      (defun move-line-down ()
+        (interactive)
+        (let ((old-column (current-column))
+              (current-line (delete-and-extract-region (line-beginning-position)
+                                                       (1+ (line-end-position)))))
+          (forward-line 1)
+          (save-excursion (insert current-line))
+          (move-to-column old-column)))
+    #+end_src
+*** Third attempt: move lines from after current line to before it
+    #+begin_src elisp
+      (defun move-line-down (count)
+        (interactive "*p")
+        (unless (zerop count)
+          (save-excursion
+            (push (point) buffer-undo-list)
+            (forward-line (if (> count 0) 1 0))
+            (let ((region-to-move (delete-and-extract-region (point)
+                                                             (save-excursion
+                                                               (forward-line count)
+                                                               (point)))))
+              (forward-line (if (> count 0) -1 1))
+              (insert-before-markers region-to-move)
+              (indent-according-to-mode)))))
+    #+end_src
+** reorder-sentence
+   - Goal: introduce non-modal design, minor mode writing,
+     =save-excursion=, buffer usage, global variables, overlays, and
+     more.
+   - Instead of having a monolithic command that blocks everything
+     else from happening, have commands to start, do, and end the
+     operation.
+   - Setup:
+     1) Store information about the region we're modifying
+     2) Store information about the window configuration we must restore
+     3) Set up a buffer to construct the reordered sentence
+     4) Display the buffer in some window
+   - Initial code:
+     #+begin_src elisp
+       (defvar reorder-sentence--begin nil
+         "The beginning of the sentence to be reordered")
+
+       (defvar reorder-sentence--end nil
+         "The end of the sentence to be reordered")
+
+       (defconst reorder-sentence--buffer-name "*Reorder sentence*"
+         "The name of the buffer used to construct a reordered sentence")
+
+       (defvar reorder-sentence--buffer nil
+         "The buffer used to construct a reordered sentence")
+
+       (defvar reorder-sentence--previous-window-configuration nil
+         "The window configuration from before reordering")
+     #+end_src
+
+     Notes:
+     - =defvar= is for defining variables that can be changed
+     - =defconst= is for defining constants that shouldn't be
+       changed
+     - Double dash in a name indicates that the user shouldn't rely on
+       these as are internal they may change
+   - The function:
+     - Copies the word at point to the reordering buffer
+     #+begin_src elisp
+       (defun reorder-sentence--bos-p ()
+         "Return t if at beginning of sentence"
+         (unless (eobp)
+           (save-excursion
+             (let ((pos (point)))
+               (forward-sentence)
+               (backward-sentence)
+               (= pos (point))))))
+
+       (defun reorder-sentence--current-sentence-bounds ()
+         "Find bounds of the current sentence"
+         (if (reorder-sentence--bos-p)
+             (list (point) (save-excursion
+                             (forward-sentence)
+                             (point)))
+             (let (beg)
+               (save-excursion
+                 (backward-sentence)
+                 (setq beg (point))
+                 (forward-sentence)
+                 (list beg (point))))))
+
+       (defun reorder-sentence (beg end)
+         "Reorder the words in the region"
+         (interactive (if (use-region-p)
+                          (list (region-beginning) (region-end))
+                        (reorder-sentence--current-sentence-bounds)))
+         (setq reorder-sentence--begin (copy-marker beg t)  ;; t makes marker go after inserted text
+               reorder-sentence--end (copy-marker end)
+               reorder-sentence--previous-window-configuration (current-window-configuration)
+               reorder-sentence--buffer (get-buffer-create reorder-sentence--buffer-name))
+         (with-current-buffer reorder-sentence--buffer
+           (erase-buffer))
+
+         (display-buffer reorder-sentence--buffer)
+         (deactivate-mark))
+
+       (defun reorder-sentence-copy-word-at-point ()
+         "Copy the word at point to the sentence reordering buffer"
+         (interactive)
+         (save-restriction
+           (narrow-to-region reorder-sentence--begin reorder-sentence--end)
+           (let ((word (current-word)))
+             (with-current-buffer reorder-sentence--buffer
+               (goto-char (point-max))
+               (when (not (bobp))
+                 (insert " "))
+               (insert word)))))
+
+       (defun reorder-sentence-finish ()
+         "Finish the reordering of the sentence.
+       Replace the selected region with the constructed sentence and restore the
+       window configuration"
+         (interactive)
+         (goto-char reorder-sentence--begin)
+         (delete-region reorder-sentence--begin reorder-sentence--end)
+         (insert-buffer-substring reorder-sentence--buffer)
+         (set-window-configuration reorder-sentence--previous-window-configuration))
+
+       (defun reorder-sentence-cancel ()
+         (interactive)
+         (set-window-configuration reorder-sentence--previous-window-configuration))
+     #+end_src
+
+     - Now, we don't have a good user interaction model here; the user
+       has to keep calling =reorder-sentence-copy-word-at-point= to
+       copy words into the buffer, which isn't any better than killing
+       and yanking manually.
+     - Idea: mark all words with a letter; pressing the letter coppies
+       the corresponding word into the buffer (think avy)
+     - Minor mode time:
+
+       #+begin_src elisp
+         (define-minor-mode reorder-sentence-mode
+           "Easily reorder a sentence or region"
+           :lighter " Reorder sentence"   ;; Shows in modeline
+           :keymap `((,(kbd "C-c C-c") . reorder-sentence-finish)
+                     (,(kbd "C-c C-k") . reorder-sentence-cancel))
+           :interactive nil ;; Whether or not reorder-sentence-mode shows up in M-x
+
+           ;; Body is evaluated on entry and exit to the mode
+           (if reorder-sentence-mode
+               (setq buffer-read-only t)
+             (setq buffer-read-only nil)))
+
+
+         (defun reorder-sentence (beg end)
+           "Reorder the words in the region"
+           (interactive (if (use-region-p)
+                            (list (region-beginning) (region-end))
+                          (reorder-sentence--current-sentence-bounds)))
+           (setq reorder-sentence--begin (copy-marker beg t)  ;; t makes marker go after inserted text
+                 reorder-sentence--end (copy-marker end)
+                 reorder-sentence--previous-window-configuration (current-window-configuration)
+                 reorder-sentence--buffer (get-buffer-create reorder-sentence--buffer-name))
+           (with-current-buffer reorder-sentence--buffer
+             (erase-buffer))
+           (display-buffer reorder-sentence--buffer)
+           (deactivate-mark)
+           (reorder-sentence-mode 1))
+
+         (defun reorder-sentence-finish ()
+           "Finish the reordering of the sentence.
+         Replace the selected region with the constructed sentence and restore the
+         window configuration"
+           (interactive)
+           (reorder-sentence-mode -1)
+           (goto-char reorder-sentence--begin)
+           (delete-region reorder-sentence--begin reorder-sentence--end)
+           (insert-buffer-substring reorder-sentence--buffer)
+           (set-window-configuration reorder-sentence--previous-window-configuration))
+
+
+         (defun reorder-sentence-cancel ()
+           (interactive)
+           (reorder-sentence-mode -1)
+           (set-window-configuration reorder-sentence--previous-window-configuration))
+
+       #+end_src

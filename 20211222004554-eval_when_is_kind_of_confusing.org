@@ -1,0 +1,18 @@
+:PROPERTIES:
+:ID:       fbd1ce82-26b2-4c75-b636-222c4143ad8e
+:END:
+#+title: Eval-when is kind of confusing
+* Eval-when, how work?
+  The format is =(eval-when ({situation}*) {form}*)=, with =situation=
+  being =:compile-toplevel= / =compile=, =:load-toplevel= / =load=,
+  and/or =:execute= / =eval= (The second names are deprecated). The
+  entire form evaluates to a result if executed, or =nil= if not.
+
+  When =:compile-toplevel= is used, the form will be evaluated during
+  compile time (when =compile-file= is called and a .fasl file is
+  generated)
+
+  When =:load-toplevel= is used, the form is evaluated when the .fasl
+  file is loaded via =load=.
+
+  When =:execute= is used, the form just acts as =progn=.

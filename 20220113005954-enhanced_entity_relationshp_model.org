@@ -1,0 +1,58 @@
+:PROPERTIES:
+:ID:       c1e04c0a-95fe-446a-ad53-c2a4a7ce8528
+:END:
+#+title: Enhanced Entity Relationshp Model
+* Enhanced Entity Relationship Model
+  This is one type of data model, which is used to map out the requirements for
+  more complicated database schemas. The data structures are diagrams that
+  denote entity types, the properties of entity types, and relations between
+  these types. The EER model is good for representing classification (entities
+  are separated into different types) and generalization (supertypes and
+  subtypes exist), but not aggregation (multiple entities can't really be part
+  of a greater object). Furthermore, because queries, being lists of properties,
+  can't be represented in the EER, the query language for EER isn't closed,
+  ensuring that this model isn't actually used for much beyond design.
+
+  - Rectangles represent an *entity type*.
+    - A user
+    - A book
+  - Ovals represent a *single-valued property* and are attached to entities. If
+    doubled, it represents a *tuple-valued property*. Properties can themselves
+    have properties; in this case, the parent is called a *composite property*.
+    - Age of user
+    - Title of book
+  - Ovals with underlined names are *identifying properties*. A given instance
+    of such a proprty can only have one entity attached to it.
+  - Diamonds represent *relations* between entity types. The number above the
+    connecting lines represents if the relation is 1-1, 1-many, or many-many.
+    Unless otherwise specified by a bold line, the 1-whatever relations are
+    partial functions. A bold line on a 1-many relation indicates that it is a
+    total function on the many.
+  - Diamonds can be connected to more than two entity types, representing an
+    n-ary relationship.
+    - [ ] These are kind of weird. An example: /student groups/ are scheduled to
+      be in different /classes/ in particular /classrooms/ at given
+      times. Sometimes you can factor these into several binary relations, but
+      often it's impossible to do so.
+  - A doubled diamond represents an *identifying relationship* for a *weak
+    entity*, represented by a doubled rectangle. A weak entity cannot exist
+    without the entity with which it shares an identifying relationship, and the
+    properties of that entity, along with its own properties, uniquely identify
+    it.
+    - A dashed underlined title for a weak entity's property indicates a
+      *partial identifier*, which, together with the other entity's properties,
+      identifies the weak entity.
+  - A *recursive relationship* is a relation between the same entity. In this
+    case, we have to label and direct the relation.
+  - *Supertypes* and *subtypes* are represented by entity types connected by a small
+    circled 'o' or 'd' joined with arrows to the types. An 'o' means that the
+    subtypes could both occur on the same entity, while a 'd' means the
+    opposite.
+  - A *union entity type* is represented by a 'u' connected to the types. In
+    this case, the subtype can only be one of the supertypes and have the
+    chosen's properties.
+  - *Properties on relations* can be represented in two ways, depending on the
+    relation type:
+    - 1-N: the property goes on the N end
+    - M-N: we make a relation type such that we have two new relations 1-M and
+      N-1, and attach the property to the relation type.

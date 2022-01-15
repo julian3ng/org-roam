@@ -1,0 +1,16 @@
+:PROPERTIES:
+:ID:       90175857-4f5f-4020-b5e6-5a8d7145b4cf
+:END:
+#+title: Model
+* Model
+  A model is a representation of reality that picks, adds, emphasizes, and drops
+  features to provide a useful tool for testing ideas. For example, consider a
+  map. A map is a representation of the world - it picks some area and the most
+  important features of it, and may include other useful information that
+  doesn't appear directly in reality. Contour lines, latitude and longitude
+  lines, and compass directions show up on a map, but not in the world. Using a
+  map to navigate is a lot cheaper than having to bumble about in the world as
+  well. The map may also have errors like any other model.
+
+  
+  

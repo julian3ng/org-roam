@@ -1,0 +1,33 @@
+:PROPERTIES:
+:ID:       72ba341e-7d30-4365-afbe-3590dd4dad3c
+:END:
+#+title: CL Compile Time
+* When is compile time?
+  - Compile time happens before load time, which is before run time.
+    Evaluating code at compile time is needed to make functions
+    available for use in macros that get used at top level. We use
+    =eval-when= with =:compile-toplevel= at the top level to make this
+    happen. [[id:fbd1ce82-26b2-4c75-b636-222c4143ad8e][Eval-when is kind of confusing]], so we'll look at it more.
+
+    For example:
+
+    #+begin_src lisp
+      (eval-when (:compile-toplevel) ;; Only does something at compile time
+        (defun run-at-compile-time ()
+          (print "COMPILE TIME"))) ;; Recompile with C-c C-c to update
+
+      (defmacro foo ()
+        (run-at-compile-time)
+        '(print "RUN TIME"))
+
+      (foo)
+    #+end_src
+    
+* How do the different times differ?
+  - Compile time happens during... compilation to machine-specific
+    code? (C-c C-c in lisp buffer)
+  - Load time (doesn't happen when (load) is called for whatever reason?)
+  - Eval time happens at actual run time
+
+** TODO What is load time really??
+    
