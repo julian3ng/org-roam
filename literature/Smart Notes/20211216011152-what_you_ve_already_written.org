@@ -1,0 +1,17 @@
+:PROPERTIES:
+:ID:       a90b9cb9-92f3-489d-b8c2-1170563194a0
+:END:
+#+title: What You've Already Written
+* The Writing Process
+  - It's much easier to write a final document having a rough
+    draft. All you have to do is some editing and polishing, and
+    you're done.
+  - Similarly, creating such a rough draft is easy with all the ideas,
+    arguments, references, quotes, and other bits of data connected up
+    and laid out for you in a proper order.
+  - Assembling a rough draft based on your notes, which are easily
+    connected due to the note taking process ([[id:f082a0b4-1a25-462f-b8be-c5d3910ea920][Note Taking as a Tool of
+    Thought]]), is a simple task as well.
+  - /And writing notes should happen as you read, think, and learn./
+    - Notes should be in your own words; this helps you internalize
+      what you're reading.

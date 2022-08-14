@@ -1,0 +1,127 @@
+:PROPERTIES:
+:ID:       08bc6573-8844-4f22-9544-d536ac1ee90d
+:END:
+#+title: Plover
+* Letters
+** Vowels
+   - AOEU are spelled by single vowels in order
+   - I is spelled EU
+   - Long vowels are spelled by adding the two opposite keys
+     - ex) long A = AEU, long E = AOE
+   
+** Left Hand (also fingerspelling)
+   | Stroke | Letter |
+   | PW     | B      |
+   | CR     | C      |
+   | TK     | D      |
+   | TP     | F      |
+   | TKPW   | G      |
+   | H      | H      |
+   | SKWR   | J      |
+   | K      | K      |
+   | HR     | L      |
+   | PH     | M      |
+   | TPH    | N      |
+   | P      | P      |
+   | KW     | Q      |
+   | R      | R      |
+   | S      | S      |
+   | T      | T      |
+   | SR     | V      |
+   | W      | W      |
+   | KP     | X      |
+   | KWR    | Y      |
+   | STKPW  | Z      |
+
+   | SH* | SH |
+   | KH* | CH |
+   | TH* | TH |
+
+** Right Hand
+   | Stroke | Letter |
+   | B      | B      |
+   | BG     | C      |
+   | D      | D      |
+   | F      | F      |
+   | G      | G      |
+   |        | H      |
+   |        | J      |
+   |        | K      |
+   | L      | L      |
+   |        | M      |
+   | PB     | N      |
+   | P      | P      |
+   |        | Q      |
+   | R      | R      |
+   | S      | S      |
+   | T      | T      |
+   |        | V      |
+   |        | W      |
+   |        | X      |
+   |        | Y      |
+   | Z      | Z      |
+
+* Important Plover Strokes
+  | Stroke             | Translation                         |
+  |--------------------+-------------------------------------|
+  | KPA                | Capitalize Next                     |
+  | KPA*               | Capitalize Next, remove prior space |
+  | AFPS               | Retroactive remove space            |
+  | *                  | Delete                              |
+  | *<left letter>     | Fingerspell                         |
+  | Fingerspell + P    | Capital fingerspell                 |
+  | Fingerspell + FPLT | Capital fingerspell + "."           |
+  | TK-LS              | No space next                       |
+  |--------------------+-------------------------------------|
+  | TP-PL              | ". "                                |
+  | P-P                | "."                                 |
+  | KW-BG              | ","                                 |
+  | H-R                | "?"                                 |
+  | SKHRAPL            | "!"!                                |
+  | STPH-FPLT          | ": "                                |
+  | KHR-PB             | ":"                                 |
+  | SKWR-RGBS          | "..."                               |
+  | SKWR*RBGS          | ";"                                 |
+  | AE                 | "' "                                |
+  | A*E                | "'"                                 |
+  | AES                | "'s"                                |
+  | TK-RB              | "--" (em-dash)                      |
+* Briefs
+  | Stroke | Translation    |
+  |--------+----------------|
+  | AEU    | non-prefix "A" |
+  |--------+----------------|
+  | TH-    | This           |
+  | THA    | That           |
+  | THR-   | There          |
+  | THEU   | Think          |
+  | THRU   | Through        |
+  |--------+----------------|
+  | WHA    | What           |
+  | WEU    | Which          |
+  | WH-    | When           |
+  | WR-    | Were           |
+  | W-R    | Where          |
+  | WHR-   | Whether        |
+  |--------+----------------|
+  | WO     | Would          |
+  | CO     | Could          |
+  | SHO    | Should         |
+  |--------+----------------|
+  | KWRE   | Yes            |
+  |--------+----------------|
+  | PHEU   | My             |
+  | PWEU   | By             |
+  |--------+----------------|
+  | TPHEU  | Any            |
+  | TPHU   | New            |
+  | TPHAO  | Into           |
+  |--------+----------------|
+  | HREUL  | Little         |
+  | PHAEPB | Many           |
+  | SRE    | Very           |
+
+
+
+ABCDEFGHIJKLMNOPQRSTUVWXYZ
+abcdefghijklmnopqrstuvwxyz

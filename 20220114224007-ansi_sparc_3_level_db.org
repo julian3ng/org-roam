@@ -1,0 +1,47 @@
+:PROPERTIES:
+:ID:       7b1a88e4-32dd-4fa7-93b6-2ebe67a4a59f
+:END:
+#+title: ANSI/SPARC 3-Level DB
+* ANSI/SPARC 3-Level DB
+  The database is separated into the [[id:33a4283f-414d-410d-b1a5-24ae209916fe][Database Schema]], which refers to the types,
+  and the data. This separation increases the efficiency of queries. 
+
+  With these three layers, the concept of *physical data independence* and
+  *logical data independence* applies - the former being the degree to which we
+  can change the internal schema without changing the application, and the
+  latter the same for the conceptual schema.
+
+  The ANSI/SPARC DBMS Framework, adopted in 1975 has two parts: the schema
+  compiler, and the query transformer. The schema compiler has three humans
+  responsible for creating the database schemata: the enterprise administrator
+  develops the conceptual schema, the database administrator defines the
+  internal schema, and the application systems administrator defines the
+  external schema. These are all defined using the [[id:4d6153aa-f9d6-482c-acef-2335fd1e0341][DB Definition Languages]], and
+  the internal and external schemata are checked against the conceptual schema
+  to ensure they make sense. Lastly, the three are stored in the metadatabase.
+
+  Logically, the query transformer takes the user or application's query and
+  transforms it from a form the external schema understands to one the
+  conceptual can. The same transformation occurs with the conceptual query and
+  the internal schema into the operations to retrieve the data from the
+  OS. These transformations happen courtesy of rules derived from the
+  metadatabase. In reality, this would be slow.
+
+  The *runtime database processor* is responsible for executing:
+  1) Privileged commands
+  2) Executable query plans (the result of the query transformer and optimizer)
+  3) Premade transactions using runtime parameters
+
+  It also passes statistics to the system catalog and obviously has to work with
+  the stored data manager to handle data.
+
+  User queries are actually compiled and optimized, then passed to the runtime
+  database processor for execution. Applications, on the other hand, use a
+  precompiler to generate host language code from *database manipulation
+  language (DML)* code embedded in the hsot language that in turn get combined
+  into a compiled transaction (object code), which, again, is run by the runtime
+  database processor.
+
+  Concurrency is managed by a separate subsystem to ensure queries and
+  transactions properly run.
+

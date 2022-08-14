@@ -1,0 +1,158 @@
+:PROPERTIES:
+:ID:       2fa8941f-9e36-4001-ba7a-bf99f09b063e
+:END:
+#+title: APL Quick Reference
+* Keys
+** +                                                               :FUNCTION:
+   Dyadic: sum arguments elementwise
+   Monadic: complex complement
+** -                                                               :FUNCTION:
+   Dyadic: subtract arguments elementwise
+   Monadic: negate
+** ×                                                               :FUNCTION:
+   Dyadic: multiple arguments elementwise
+   Monadic: direction (make unit length if complex, sign if not)
+** ÷                                                               :FUNCTION:
+   Dyadic: divide arguments elementwise
+   Monadic: reciprocal
+** ¯                                                               :FUNCTION:
+   Denotes negative number
+** ≠                                                               :FUNCTION:
+   Dyadic: Not equal
+   Monadic: Unique mask (return boolean array of locations of unique elements)
+** <, ≤, =, ≥, >                                                   :FUNCTION:
+   Dyadic: less than, leq, equal, geq, greater than
+** ¨                                                               :OPERATOR:
+   Monadic: f¨ applies f to each element of ⍵. If f is dyadic, f¨ pairs each
+   element of ⍺ with each the corresponding element of ⍵.
+** ⋄
+   Sequence statements
+** ⌽                                                               :FUNCTION:
+   Monadic: Transpose last axis
+   Dyadic: Rotate last axis
+   Can take axis argument as in ⌽[1]⍵
+** ⍉                                                               :FUNCTION:
+   Monadic: Transpose (reflects shape of ⍵)
+   Dyadic: ⍺ gives final locations of each axis of ⍵
+** ⊖                                                               :FUNCTION:
+   Monadic: Transpose first axis
+   Dyadic: Rotate first axis
+   Can take axis in brackets
+** *                                                               :FUNCTION:
+   Monadic: e to the ⍵ power
+   Dyadic: ⍺ to the ⍵ power
+** ⍟                                                               :FUNCTION:
+   Monadic: natural log ⍵
+   Dyadic: log base ⍺ of ⍵
+** ∨                                                               :FUNCTION:
+   Dyadic: or / GCD
+** ∧                                                               :FUNCTION:
+   Dyadic: and / LCM
+** ⍱                                                               :FUNCTION:
+   Dyadic: nor
+** ⍲                                                               :FUNCTION:
+   Dyadic: nand
+** !                                                               :FUNCTION:
+   Monadic: Factorial
+   Dyadic: ⍵ choose ⍺
+** ?                                                               :FUNCTION:
+   Monadic: random scalar in ⍳⍵
+   Dyadic: ⍺ and ⍵ must be scalar or 1-element vector, ⍺ must be ≤ ⍵. Return ⍺
+   picks from ⍳⍵ without replacement.
+** ⍵
+   Second function argument
+** ∊
+   Monadic: flattens ⍵
+   Dyadic: for each element of ⍺, 1 if in ⍵, else 0
+** ⍷
+   Dyadic: boolean indicators of entirety of ⍺ in ⍵ 
+** ⍴
+   Monadic: shape of ⍵
+   Dyadic: reshape ⍵ into ⍺
+** ~
+   Monadic: logical inverse
+   Dyadic: exclude elements of ⍵ from ⍺
+** ⍨
+   Dyadic Function: return ⍺
+   Monadic Operator: ⍺ f⍨ ⍵ is the same as ⍵ f ⍺
+   - f⍨ ⍵ is the same as ⍵ f ⍵
+** ↑
+   Monadic: mix
+   - fractional axis argument determines where to put the new axis
+   Dyadic: take
+   - Take first ⍺ from first (or given) axis of ⍵
+** ↓
+   Monadic: split
+   - axis argument determines which axis to squish
+   Dyadic: drop
+   - drop first ⍺ from first (or given) axis of ⍵
+** ⍳
+   Monadic: vector of the half-open interval [⎕IO, ⍵+⎕IO)
+   Dyadic: indices in ⍺ of elements of ⍵
+** ⍸
+   Monadic: where
+   Dyadic: interval index: ⍺ must be in ascending order, elements of ⍺ define
+   bins into which the elements of ⍵ are sorted.
+** ○ (APL+o)
+   Monadic: pi times ⍵
+   Dyadic: Depends on ⍺
+   | ⍺ negative  | ⍺ | ⍺ positive  |
+   | (1-⍵*2)*0.5 | 0 | (1-⍵*2)*0.5 |
+   | Arcsin ⍵    | 1 | Sin ⍵       |
+   | Arccos ⍵    | 2 | Cos ⍵       |
+   | Arctan ⍵    | 3 | Tan ⍵       |
+** ⍥                                                               :OPERATOR:
+   Dyadic: X f⍥g Y is the same as (gX)f(gY)
+   f⍥gY is the same as fgY
+** ⍣                                                               :OPERATOR:
+   f⍣g:
+   - g scalar: apply f g times to its argument
+   - g dyadic function returning scalar: apply f until (f ⍵) g ⍵
+     - Notably: using = or ≡ as g makes it a fixpoint
+** ←
+   Assign
+** ⍬
+   Empty vector
+** \
+   Dyadic Function: Expand ⍵ according to ⍺: if a[i] is n, the ith element of ⍵
+   is placed n times in the output, if n is positive. If n is negative, that
+   many fill items are put in. 0 counts as -1 in this case.
+   If ⍵ is scalar or 1-element vector, then that element is used for all
+   expansions. Otherwise, the number of positive elements of ⍺ must match the
+   length of ⍵.
+
+   Monadic Operator: f\ Is like reduce, but it keeps track of each individual
+   result.
+** |
+   Monadic: magnitude
+   Dyadic: Positive arguments: remainder of ⍵÷⍺. Negative arguments:
+   ⍵-⍺×⌊⍵÷⍺+0=⍺
+** ⍺
+   First function argument
+** ⌈
+   Monadic: ceiling
+   Dyadic: maximum
+** ⌊
+   Monadic: floor
+   Dyadic: minimum
+** ∇
+   Call dfn recursively
+** ∘
+   f∘g composes functions
+   ⍺∘g curries g to take ⍺ as its first argument
+
+   Xf∘gY equivalent to Xf(gY): g monadic, f dyadic
+   f∘gY equivalent to f(gY): both monadic
+   
+** ⍤
+   Xf⍤gY equivalent to fX(gY): g dyadic, f monadic
+   f⍤gY equivalent to f(gY): both monadic
+   {X}f⍣BY where B is numeric scalar or up-to-3-item vector:
+   - When r, B = r r r
+   - When q r, B = r q r
+   - Else, B = p q r
+   - First represents rank of argument cells when f is applied monadically
+   - Second represents rank of left argument cells when f is applied dyadically
+   - Third represents rank of right argument cells when f is applied dyadically
+
+     

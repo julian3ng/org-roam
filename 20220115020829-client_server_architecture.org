@@ -1,0 +1,18 @@
+:PROPERTIES:
+:ID:       8916e342-e264-47ad-8c46-aa4bb3ab01ec
+:END:
+#+title: Client/Server Architecture
+* Client
+  The *client* is the user-facing part of the application. It provides the
+  interface through which the user sends commands to the server. Having the
+  client separated out from the server allows the existence of other types of
+  clients. For example, in the case of databases, there might be a GUI client
+  and a CLI client to the same database server.
+  
+* Server
+  The *server* does the actual processing for an application. It needs to
+  provide some API for interaction that the client can use.
+
+* Architecture
+  An application may have more than one layer of client-server interactions. A
+  client could query a server, which might query another server, and so on.

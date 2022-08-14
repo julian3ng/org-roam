@@ -1,0 +1,228 @@
+:PROPERTIES:
+:ID:       a5936704-e256-4969-8d91-31247eac77eb
+:END:
+#+title: Security
+* Security
+  Informally, the ciphertext of an encryption scheme shouldn't give any new
+  information to attackers. A more realistic approach is that attackers can't
+  gain any new information from the ciphertexts in a reasonable amount of
+  computational time.
+
+** Proving Insecurity  
+   To prove a security scheme insecure in general we must do three things:
+   1) Construct an adversary (some algorithm) $\mathcal{A}$ that breaks the
+      encryption scheme in whatever definition of security we're using.
+   2) Calculate the advantage for the adversary under that security
+      definition. $\frac{1}{1000}$ is a reasonable threshold for the attacker,
+      and even $\frac{1}{1000000}$ is plausible to use.
+   3) Calculate the resources required to mount the attack, namely:
+      i) Computational complexity
+      ii) Number of queries
+      iii) Total size of queries
+ 
+   If such an adversary can break the scheme with a reasonable amount of
+   resources, then the scheme is insecure.
+   
+** Proving Security
+   To prove security of some encryption scheme, we must show there are no
+   possible attacks under the definition of security we are using.
+
+   To show $S$ is $x\text{-secure}$ given that $T$ is $y\text{-secure}$, we use
+   the contrapositive and show that $S$ not being $x\text{-secure}$ forces $T$
+   to not be $y\text{-secure}$.
+
+   In practice, this amounts to creating an adversary for $\mathcal{B}$ for
+   scheme $T$ with security definition $y$ that uses adversary $\mathcal{A}$,
+   which breaks $x$ for scheme $S$.
+*** CRTC is IND-CPA secure
+    Proof: Recall CTRC has $\mathcal{E}_K: C[i] = F_K(\text{ctr} + i) \oplus
+    M[i]$, with ctr increasing for each block, and ctr not wrapping around.
+
+    Adversary $\mathcal{B}$ (for PRF-Security on block cipher $F$) runs as follows:
+
+    - \(b \xleftarrow{\$}{\{0, 1\}}\)
+    - Run $\mathcal{A}$ as follows:
+      - Take the $(M_0, M_1)$ that $\mathcal{A}$ would normally provide to the
+        left-right oracle
+      - Encrypt $M_b$ using the block cipher oracle: \(C \xleftarrow{\$}{\mathcal{E}_F(M_b)}\)
+      - Pass $C$ back to $\mathcal{A}$ as if it were from its left-right oracle
+      - Repeat for the next $(M_0, M_1)$ pair.
+    - Eventually $\mathcal{A}$ will output a bit $b'$. If they match, then
+      $\mathcal{B}$ outputs $1$, otherwise it outputs $0$.
+
+   To calculate advantage:
+
+   $\text{Adv}_{F}^{PRF} = P(\mathcal{B} \to 1 \;\text{in exp}\; 1) - P(\mathcal{B} \to 1 \;\text{in
+   exp}\; 0)$
+
+   $P(\text{Exp}_\text{CTRC[F]}^\text{CPA-CG} \to 1) -
+   P(\text{Exp}_\text{CTRC[func(l, L)]}^\text{CPA-CG} \to 1)$
+
+   $\frac{1}{2}\text{Adv}_\text{CTRC[F]}^\text{IND-CPA} + \frac{1}{2} -
+   \frac{1}{2}\text{Adv}_\text{CTRC[func(l, L)]}^\text{IND-CPA} - \frac{1}{2}$
+
+   The first $\text{Adv}$ term is $\mathcal{A}$'s advantage.
+
+   The second $\text{Adv}$ term is $0$.
+
+   Why? We have $C[i] = g(\text{ctr} + i) \oplus M[i]$ with $g$ random and
+   $\text{ctr} + i$ never repeating, so $C$ ends up being completely
+   random. This is essentially a one time pad.
+
+   Therefore, $\text{Adv}_\text{CTRC[F]}}^\text{IND-CPA} =
+   2\text{Adv}_\text{F}^{PRF}$.
+
+   We know that the block cipher is secure though, so the IND-CPA advantage for
+   CTRC using that secure block cipher must be half large, meaning that CTRC
+   must be IND-CPA secure.
+
+** Perfect Security  
+   *Perfect Security*: a symmetric encryption scheme $SE$ is perfectly secure (or
+    *Shannon secure*) if for every ciphertext $C$ and messages $M_1$ and $M_2$,
+ 
+    $P[E(K, M_1) = C] = P[E(K, M_2) = C]$
+ 
+    Essentially, for any ciphertext, all messages are equally likely.
+ 
+    The [[id:68f75ded-cdb1-45e6-bbe7-0b908dc4722e][One Time Pad]] is perfectly secure.
+
+    Perfect security is not very practical due to the requirement that the key
+    space not be smaller than the message space.
+
+** IND-CPA (Indistinguishable under Chosen Plaintexts)
+   Fix $\mathcal{SE} = (KeySp, \mathcal{E}, \mathcal{D})$ and \(\mathcal{K}
+   \xleftarrow{\$} KeySp\)
+
+   For adversary $\mathcal{A}$ and random bit $b$, consider experiment
+   ind-cpa-b.
+
+   In each experiment, $\mathcal{A}$ has access to left-right oracle
+   $\mathcal{E}_{\mathcal{K}}(LR(\cdot, \cdot, b))$, which takes two messages
+   and returns the ciphertext of one of them.
+
+   $\mathcal{A}$'s goal is to determine $b$ within a reasonable amount of time
+   and compute power.
+
+   The advantage of $\mathcal{A}$, $Adv^{ind-cpa}(A)$ is the probability of
+   $\mathcal{A}$ choosing $0$ for experiment $0$ minus the probability of
+   choosing $0$ for experiment $1$ - in other words, the difference in
+   probabilities of guessing right and guessing wrong.
+
+   If this advantage is sufficiently close to $0$, then we can say the scheme
+   $\mathcal{SE}$ is IND-CPA secure.
+   
+*** Example Proofs of Insecurity
+**** Electronic Code Book (ECB)
+     Recall that $C_i = E_K(M_i)$ for all blocks $i$.
+
+     1) The adversary feeds $M_1 = 0^{2n}$ and $M_2 = 0^n1^n$ into the
+        left-right oracle. If the resulting ciphertext blocks $C_0||C_1$ are the
+        same, then we know we had $M_1$ due to $E_K$ being a
+        permutation. Otherwise, we had $M_2$.
+     2) The adversary's advantage is 1, as the deterministic nature of block
+        cipher $E_K$ ensures we always get the same result from the same block.
+     3) Resources used:
+        - Time: time to compare $C_0$ to $C_1$ = $n$
+        - Queries: 1
+        - Query Length: two messages of size $2n$ = $4n$
+**** Cipher Block Chaining with Counter (CBCC)
+     Recall that $C_0 = 0^n$ for the first message, then $0^{n-1}1$, and so on,
+     counting up.
+
+     Then, $C_i = E_K(M_i \oplus C_{i-1})$
+
+     1) The adversary makes two queries:
+        1) $M_1 = \langle0\rangle, M_2 = 1^n$, making the oracle return $C_0||C_1$
+        2) $M_1 = \langle1\rangle, M_2 = 1^n$, making the oracle return $C_0||C'_1$
+
+        In the first query, $C_0$ is $\langle0\rangle$, while in the second
+        query, $C_0$ is $\langle1\rangle$, forcing $C_1 = E_K(0)$ both times if $M_1$
+        is chosen.
+
+        On the other hand, if $M_2$ is chosen, then $E_K(1^n \oplus
+        \langle0\rangle)$ is not equal to $E_K(1^n \oplus \langle1\rangle)$.
+
+        Therefore, we can tell which experiment we're in based on $C_1 = C'_1$.
+     2) The advantage is 1.
+        - Justification: when in experiment 0, then we always have $C_1 = C'_1$
+          by the above construction. When in experiment 1, then we always have
+          $C_1 \neq C'_1$, again by the above construction.
+     3) Resources used:
+        - Time: time to compare $n$ bits
+        - Queries: 2
+        - Query Length: two queries with two messages of size $n$ = $4n$
+**** Any Deterministic, Stateless, Symmetric Scheme
+     For simplicity, assume the message space is $\{0, 1\}^n$
+     1) The adversary makes two queries:
+        1) $M_1 = 0^n, M_2 = 1^n$, oracle returns $C_1$
+        2) $M_1 = 0^n, M_2 = 0^n$, oracle returns $C_2$
+
+        If in experiment 0, $C_1 = C_2$ because all blocks are the same both
+        times. If in experiment 1, $C_1 \neq C_2$ because all blocks are
+        different between the first $M_2$ and the second $M_2$.
+
+     2) The adversary's advantage is 1 by construction - in experiment 0, we can
+        only get 0, and in experiment 1, we can only get 1.
+
+     3) Resources used:
+        - Time: time to compare $n$ bits
+        - Queries: 2
+        - Query Length: two queries with two messages of size $n$ = $4n$
+
+*** Equivalent Formulation
+    Instead of picking $b$ beforehand, we let $b$ be random. The adversary wins
+    if it outputs 1 when $b = 1$. This formulation is known (possibly for CS6400
+    only) as "chosen plaintext, choose and guess", or CPA-CG.
+
+    It is related to IND-CPA via: $P(Exp_{SE}^{CPA-CG} \to 1) = \frac{1}{2} +
+    \frac{1}{2}Adv_{SE}^{IND-CPA}(A)$
+    
+** IND-CCA (Indistinguishable under Chosen Ciphertexts)
+   This formulation gives the attacker more power in the form of a decryption
+   oracle $\mathcal{D}_K$ that the attacker can use to decrypt ciphertexts other
+   than the ones returned by the encryption oracle.
+
+   IND-CPA insecurity implies IND-CCA insecurity (if you can build an adversary
+   to break it /without/ a decryption oracle, then you can do the same thing
+   /with/ one and just not use it). Similarly, IND-CCA security implies IND-CPA
+   security.
+
+   IND-CCA insecurity proofs tend to rely on *malleability*, the property that,
+   when given a ciphertext, the attacker can make a new ciphertext that decrypts
+   to a plaintext related to the original plaintext.
+   
+*** Example Proofs of Insecurity
+**** Cipher Block Chaining with Random IV (CBC$)
+     The adversary passes $(0^{2n}, 1^{2n})$ into the encryption oracle,
+     receiving $C_0||C_1||C_2$ in return. It then passes $C_0||C_1$ into the
+     decryption oracle, receiving $M$. If $M$ is $0^n$, we obviously had the
+     left message, otherwise we got $1^n$, implying the right message.
+     
+* Block Cipher Security
+  :PROPERTIES:
+  :ID:       cc652c46-d752-43e5-b397-9bbd035d7491
+  :END:
+  [[id:6a0014d8-81bb-4eb2-85d1-d963559af47e][Block Ciphers]] also have a definition of security, known as Pseudorandom
+  Function security (PRF Security).
+
+  Similar to IND-CPA, we set up two experiments, $\text{exp-prf-1}$ and
+  $\text{exp-prf-0}$ that represent the actual block cipher and a random
+  function. An adversary $\mathcal{A}$ tries to guess the correct experiment. If
+  it can do so with a non-small probability (the PRF-advantage of $\mathcal{A}$,
+  then we can say that the block cipher $E$ is secure.
+
+  Example Proof: $E_K(M) = M$ (no encryption)
+
+  1) $\mathcal{A}$ will output $1$ if it sees $M$ in the "ciphertext".
+  2) Advantage:
+     - $P(\mathcal{A} \to 1 | \text{exp-prf-1}) = 1$
+     - $P(\mathcal{A} \to 1 | \text{exp-prf-0}) = \frac{1}{2^n}$ because a
+       random function has $2^n$ choices to map $M$ to, one of which being
+       leaving $M$ unchanged.
+     - Advantage = $1 - \frac{1}{2^n}$, which is not small
+  3) Resources:
+     - Time: Time to compare an n-bit string
+     - Queries: 1
+     - Total length of queries: 2n
+       
+

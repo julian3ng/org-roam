@@ -1,0 +1,855 @@
+* Literature Notes: _On Lisp_ by Paul Graham
+** Chapter 1: The Extensible Language
+   - 1: Lisp itself can be modified to add features that integrate seamlessly
+     into the language.
+   - 2: Lisp gives us a more flexible way to implement programs - instead of
+     planning everything out ahead of time, we can test things out with a quick
+     feedback cycle
+   - 3: Lisp gives us bottom-up design, meaning changing the language to suit
+     the task, in addition to the more conventional top-down design of
+     application creation.
+     - We end up with shorter programs written in a specially made DSL
+     - Code reuse happens!
+     - Doing it from the bottom helps us see similar patterns
+   - 5: Lisp lends itself to making extensible programs like Emacs.
+   - 6: Two ways to add functionality to Lisp: functions and macros
+     - Macros write code.
+** Chapter 2: Functions
+   - 9: Functions are Lisp Objects (i.e. first class functions in Lisp)
+   - 11: Functions can be made via =defun=, and anonymous functions with
+     =lambda=
+   - 12: =symbol-value= and =symbol-function= extract a symbol's value and
+     function, respectively - they are two different slots! (This is the
+     difference between Lisp-2 and Lisp-1)
+   - 13: Functions can be passed as arguments into other functions.
+   - 15: Functions can be arranged in a table indexed by a type, providing a
+     simple method lookup table
+   - 16: Common Lisp is lexically scoped. Free variables take on the values they
+     have when the function they're in was defined, as opposed to dynamic
+     scoping, where they take on the value in scope at the time the function is
+     executed.
+     - We can declare a variable =special= later if necessary.
+   - 16: A closure is the set of bindings of free variables and the function at
+     the time of said function's definition.
+
+     Common example:
+     #+begin_src lisp
+       (defun make-adder (n)
+         (lambda (x) (+ x n)))
+     #+end_src
+
+     Less common example showing the binding existing past definition time:
+     #+begin_src lisp
+       (let ((counter 0))
+         (defun new-id () (incf counter))
+         (defun reset-id () (setf counter 0)))
+     #+end_src
+
+     We can also return closures that share state:
+     #+begin_src lisp
+       (let ((counter 0))
+         (list
+          #'(lambda (k) (incf counter k))
+          #'(lambda (k) (decf counter k))
+          #'(lambda () counter)))
+     #+end_src
+
+   - 21: The existence of =labels= is needed when we want to define a function
+     that a) needs to close over some free variable and b) is
+     recursive. Requirement (a) means that we need to have the definition inside
+     of a =let=, while requirement (b) means we still need to have a name, not
+     just a lambda.
+     - =labels= is to =flet= as =let*= is to =let=
+   - 22-23: tail recursion will be used if we use =(declaim (optimize speed))=
+   - 24: compilation can be done manually via =(compile 'my-function)=
+     - Compiled functions will output compiled functions
+   - 26: We can inline functions with =(declaim (inline fn1 fn2 fn3))=
+   - 27: functions are now native code instead of interpreted lists!
+** Chapter 3: Functional Programming
+   - 28: Lisp lends itself to a functional style. Instead of modifying things in
+     place, we return a value and operate on those.
+   - 31: Lisp provides non-consing functions that destroy their input to create
+     their return values. You still have to assign those values.
+     - These are the functions like =nreverse=, =nconc==
+   - 32: Instead of returning multiple values by modifying a pointer (a la C),
+     we use =values= and =multiple-value-bind=.
+   - 35: Some side effects are better than others: if you're going to use a
+     nonconsing function, make sure to do so on freshly made lists rather than
+     someone's input.
+   - 36: The same code called twice should return the same thing.
+   - 36: Functions shouldn't return things that are unsafe to modify, like
+     QUOTED LISTS:
+     #+begin_src lisp
+       (defun exclaim (this)
+         (append this '(oh my)))
+
+       (nconc (exclaim '(hello)) '(goodness)) ;; nconcs onto '(oh my) in the function
+
+       (exclaim '(goodbye)) ;; '(goodbye oh my goodness)
+     #+end_src
+
+   - 38: Functional style makes it easy to test, especially with Lisp's
+     already interactive development style
+** Chapter 4: Utility Functions
+   - 42: abstract functionality: when you have two bits of code that are the
+     same but for a function call, pull out the call into a parameter.
+   - 47: =push= in conjunction with =nreverse= is a standard Lisp idiom for
+     accumulating a list.
+     - =group= will be used later in the book, so we'll note it here
+     #+begin_src lisp
+       (defun group (source n)
+         (when (zerop n) (error "zero length"))
+         (labels ((rec (source acc)
+                    (let ((rest (nthcdr n source)))
+                      (if (consp rest)
+                          (rec rest (cons (subseq source 0 n) acc))
+                          (nreverse (cons source acc))))))
+           (when source (rec source nil))))
+     #+end_src
+   - 48: Functions that search follow similar patterns: given a test function,
+     find a value in a list for which that function is non-nil.
+   - 49: Examples of functions that go into nested lists
+     #+begin_src lisp
+       (defun flatten (x)
+         (labels ((rec (x acc)
+                    (format t "~A ~A~%" x acc)
+                    (cond ((null x) acc) 
+                          ((atom x) (cons x acc))
+                          (t (rec (car x) (rec (cdr x) acc))))))
+           (rec x nil)))
+     #+end_src
+     - The third clause of the =cond= is the trickiest one if you try to look at
+       it too hard. =rec= takes =x= and flattens together with =acc=. Thus,
+       =(rec (car x) (rec (cdr x) acc))= first flattens =(cdr x)= with =acc=,
+       then =(car x)= with that.
+     - 53: Functions that map apply a function to an argument sequence
+     - 56: IO functions - all of these have some form of =read=, =read-line=,
+       etc.
+       - When doing queries, use *query-io* for formatting
+     - 57: =intern= brings in a symbol based on a given string to the current
+       package
+     - 59: "But this is unreadable!?!?!?1" - no it's not! Code reuse helps us,
+       and the code would look much worse if we were /almost/ duplicating things
+       everywhere.
+** Chapter 5: Returning Functions
+   - 62: =complement= takes a predicate and returns a function that does the
+     opposite
+     - Obviates the need for =*-if-not=
+   - 63: Orthogonality: the ability to combine small pieces of functionality to
+     get different effects - legos are very orthogonal, model kits not so much.
+     - One way we could improve this is by having a table of complementary
+       functions and look up the *-if-not functions via a macro, and do
+       similarly with non-consing
+   - 65: Memoizer function: take a function and return the memoized version
+     using an #'equal hash table
+   - 66: fif, fint, fun (for function if, function intersection, function union)
+     - Used to create one-argument lambdas that in turn rely on other functions:
+       #+begin_src lisp
+         (mapcar #'(lambda (x) (if (f x) (g x) (h x))) l)
+
+         (mapcar (fif #'f #'g #'h) l)
+       #+end_src
+   - 68: We can write a function =lrec= to create linear recursion functions for
+     us - however, they won't be tail-recursive due encoding the obvious
+     solution.
+   - 74: We can write functions =ttrav= and =trec= to traverse a general list.
+   - 75: WE CAN MAKE FUNCTIONS WITH COMPOSITIONS AT READ TIME TO AVOID RUNTIME
+     COST: use the read macro =#.= to evaluate a form at read time.
+     - Of course, we can just do this with macros too.
+** Chapter 6: Functions as Representation
+   - 79: We can use closures to represent the traversal of graphs, delaying
+     traversal using thunks.
+   - 79: The first example has closures encoding yes/no questions in a global
+     variable - answering yes/no calls the next closure in the global.
+   - 80: The second example uses the global to define the network, but the
+     closures are encoded directly in the returned function rather than having
+     to access the global.
+** Chapter 7: Macros
+   - 82: A macro is a function that generates Lisp code.
+     #+begin_src lisp
+       (defmacro nil! (var)
+         (list 'setf var nil))
+     #+end_src
+
+     The above means "when you see =(nil! x)=, transform it into =(setf x nil)=,
+     and evaluate that instead."
+
+   - 84: Backquote and comma can be used to make writing the output more similar
+     to its usage.
+     #+begin_src lisp
+       (defmacro nil! (var)
+         `(setf ,var nil))
+     #+end_src
+
+     Now instead of directly using =list=, we use backquote. Comma is used to
+     interpolate the value of =var=, which is itself a Lisp form, into the list.
+
+   - 86: =,@= is used to splice its argument into a backquoted list. The
+     argument must be a list, unless the splice location is the end of a list,
+     in which case it can be an atom.
+
+   - 91: the function =macroexpand= will take a macro call and show what it
+     expands into. There's also =macroexpand-1= that will just do one round of
+     expansion.
+
+   - 93: =destructuring-bind= is used to bind variables in a particular
+     pattern. The same is allowed in macro argument lists.
+     #+begin_src lisp
+       (defmacro foo (a (b c) d)
+         `(list ,a ,b ,c ,d))
+
+       (foo 'a ((+ 1 1) 'c) 'd) ;; => (a 2 c d)
+     #+end_src
+
+     This can sometimes make our code cleaner, particularly when we have
+     arguments followed by a &body argument.
+     #+begin_src lisp
+       (defmacro if-let ((var expr) then else)
+         `(let ((,var ,expr))
+            (if ,var
+                ,then
+                ,else)))
+     #+end_src
+
+   - 96: Macro expansions happen in the given lexical environment as of
+     CLTL2. In CLTL1, they used the null lexical environment.
+
+   - 99: Macros ought to favor clarity over efficiency in expander code (because
+     we need to know what's happening) and vice versa in the expanded code.
+
+   - 101: Macro usages must be recompiled when a macro is redefined.
+
+   - 105: Symbol Macros: triggered by symbols instead of being called. Only
+     locally definable.
+     #+begin_src lisp
+       (symbol-macrolet ((funky (progn (print "Howdy") 1)))
+         (+ funky funky))
+     #+end_src
+** Chapter 8: When to Use Macros
+   - 106: Use macros when a function won't work.
+     - 107: Macros can look at their arguments before they are evaluated
+     - 107: Anything that needs to alter a binding of an argument must be a
+       macro (cause it expands to a setq, and setq's first argument shouldn't be
+       evaluated)
+     - 108: Anything that needs conditional argument evaluation
+       (short-circuiting, =when=, etc.)
+     - 108: Multiple evaluation of arguments
+     - 108: Using the calling environment (*usually a mistake*)
+     - 108: Wrapping a new environment around an argument (think =with ...= in
+       python)
+     - 109: Saving function calls by doing work at compile time.
+   - 110: Macros aren't functions, so they can't be passed into higher-order
+     functions unless you do something like wrapping it in a lambda.
+   - 111: Macros are less clear than functions
+   - 111: Macros can be more difficult to debug, and you can't =trace= them
+   - 111: Recursion is confusing with macros
+** Chapter 9: Variable Capture
+   - 118: When a symbol from a macroexpansion refers to a variable from another
+     context, this is known as variable capture. Generally we want to avoid
+     this, but sometimes it's useful.
+
+   - 118: Macro Argument Capture: when an argument passed to the macro refers to
+     a variable created by the expanded macro.
+     #+begin_src lisp
+       (defmacro bad-for ((var start stop) &body body)
+         `((do ((,var ,start (1+ ,var))
+                (limit ,stop))
+               ((> ,var limit))
+             ,@body)))
+     #+end_src
+
+     This can fail when =var= is =limit=, causing the =do= to try to update
+     =limit= twice.
+
+   - 119: Free Symbol Capture: when a variable created by the expanded macro
+     refers to an existing variable in the expansion environment
+     #+begin_src lisp
+       (defvar w nil)
+
+       (defmacro gripe (warning)
+         `(progn (setq w (nconc w (list ,warning))) nil))
+     #+end_src
+
+     If =gripe= is used in an environment with some other variable =w=, it will
+     cause problems.
+
+   - 121: "A symbol /s/ appears free in an expression when it is used as a
+     variable in that expression, but that expression doesn't create a binding
+     for it."
+     
+     #+begin_src lisp
+       (let ((x 1))
+         (+ x y)) ;; y is free
+     #+end_src
+
+   - 121: "The /skeleton/ of a macro expansion is the whole expansion, minus
+     anything which was part of an argument in the macro call."
+
+     #+begin_src lisp
+       (defmacro foo (x y)
+         `(/ (+ ,x 1) ,y))
+
+       (foo (- 5 2) 6)
+
+       ;; Skeleton
+       ; (/ (+ ___ 1) ___ )
+     #+end_src
+
+   - 122: "A symbol is /capturable/ in some macro expansion if (a) it occurs
+     free in the skeleton of the macro expansion, or (b) it is bound by a part
+     of the skeleton in which arguments passed to the macro are either bound or
+     evaluated."
+
+     #+begin_src lisp
+       (defmacro cap1 ()
+         `(+ x 1))
+     #+end_src
+
+     =x= is free in the skeleton, so if it were called in some environment with
+     an existing =x=, weird stuff could happen.
+
+     #+begin_src lisp
+       (defmacro cap2 (var)
+         `(let ((x ...)
+                (,var ...))
+            ...))
+
+       (defmacro cap3 (var)
+         `(let ((x ...))
+            (let (,var ...)
+              ...)))
+
+       (defmacro cap4 (var)
+         `(let (,var ...)
+            (let ((x ...))
+              ...)))
+
+     #+end_src
+
+     =x= is bound where =,var= is also bound, so it is capturable. If =var= were
+     =x=, then weird things could happen. In =cap3= and =cap4=, one of the two
+     is shadowed by the other.
+
+     #+begin_src lisp
+       (defmacro cap5 (&body body)
+         `(let ((x ...))
+            ,@body))
+     #+end_src
+
+     =x= could be bound or used inside =body= with unexpected effects
+
+   - 124: The above rules will work for most cases.
+   - 125: Ways to avoid variable capture:
+     - use a special variable for use by the macro only (just fix via
+       convention)
+     - bind all the arguments to new variables inside the macro before doing
+       anything (doesn't work for a lot of cases)
+   - 128: The real way to do this: =GENSYM=: outside of the macroexpansion, we
+     create a gensym for each capturable variable. Inside the macroexpansion, we
+     use it in place of that variable. This takes the "use a weird name" method
+     of fixing it to its logical extreme, as gensym returns names so weird that
+     they'll never be =eq= to a name we pass in or are near.
+
+     #+begin_src lisp
+       (defmacro good-for ((var start stop) &body body)
+         (let ((gstop (gensym)))
+           `(do ((,var ,start (1+ var))
+                 (,gstop ,stop))
+                ((> ,var ,gstop))
+              ,@body)))
+     #+end_src
+   - 130: Function names can be vulnerable to capture, as well as block names
+     and tags.
+   - 131: Note that a macro with a =do= form will capture the block =nil=, so
+     returns will return from the macro, not from a surrounding block.
+** Chapter 10: OTher Macro Pitfalls
+   - 133: =multiple-eval-for= evaluates =,stop= every iteration during the
+     termination check.
+     #+begin_src lisp
+       (defmacro multiple-eval-for ((var start stop) &body body)
+         `(do ((,var ,start (1+ ,var)))
+              ((> ,var ,stop))
+            ,@body))
+     #+end_src
+   - 135: it's good practice to have the arguments of a macro be evaluated (if
+     at all) in the order they appear.
+   - 136: Lisp expects expanded code to not depend on or affect the world
+     outside the macro - it should only depend on its arguments.
+   - 137: the 'nconc-onto-unsafe' problem can happen with rest arguments to
+     functions and macros. =(nconc args ...)= with args being &rest can change
+     things down the road, and with macros, this could lead to self-rewriting
+     programs.
+     #+begin_src lisp
+       (defmacro echo (&rest args)
+         `',(nconc args (list 'amen)))
+     #+end_src
+   - 138: In general, don't go around destructively modifying parameters to
+     functions and macros.
+   - 139: Avoid destructively modifying macro expansions (especially those that
+     return quoted forms)
+   - 140: Recursive macros that try to recurse on the value of the argument
+     won't work, since it'll just keep expanding the macro each time without
+     hitting the base case due to the base case not evaluating at compile time.
+     - You /can/ have a macro spit out a recursive function
+     - You /can/ have a recursive macro that's recursive on the argument
+       structure itself.
+** Chapter 11: Classic Macros
+   - 143: Most common macros fall into three kinds with some overlap
+     1) Context-creating macros that cause arguments to be evaluated in some new
+        context
+     2) Conditional evaluation: think =or=, =and=, =if=, =when=, etc.
+     3) Repeated evaluation: probably some loopy thing?
+   - 144: Case 1 involves macros that make bindings. =let= can be defined as a
+     macro around =lambda=:
+     #+begin_src lisp
+       (defmacro our-let (binds &body body)
+         `((lambda ,(mapcar #'(lambda (x) (if (consp x) (car x) x)) binds)
+             ,@body)
+           ,@ (mapcar #'(lambda (x) (if (consp x) (cadr x) nil)) binds)))
+     #+end_src
+
+     How this works: the lambda takes in all the binding variables from the
+     firsts of the binding list as arguments and is applied to the seconds of
+     the binding list.
+   - 145: =when-bind= evaluates an expression, and, if non-nil, evaluates a body
+     with that binding. Same with =when-bind*= but with multiple non-nil
+     bindings.
+   - 145: =with-gensyms= uses =let= and =mapcar= to bind a bunch of gensyms
+   - 146: =condlet= will bind variables when the cond clause is non-nil.
+   - 147: =with-= type macros also are context-creating macros in a different
+     way. They're actually sort of similar to the macros above, but they also
+     free up resources on any exit.
+     - Examples: =with-open-file=, =with-output-to-stream=, etc.
+     - These expand into =unwind-protect= forms to handle the exit forms.
+   - 150: Case 2 involves macros that have their arguments evaluated under
+     certain conditions.
+   - 154: Case 3 covers iteration macros like =while=, =till=, =for= that need
+     to evaluate a body multiple times. If we want more powerful iteration
+     macros (eg iterate over tuples of a list), then we need a macro.
+   - [ ] Come back and look at these examples
+   - 161: Macros aren't strictly required for conditional evaluation, we can
+     just delay it with thunks. They /are/ required for looking into argument
+     forms and variable bindings.
+** Chapter 12: Generalized Variables
+   - 165: =setf= generalizes =setq=. =setq= is for symbol-value only, while
+     =setf= can be used for any generalized variable.
+     - =(setf x y)= means "make =x= evaluate to =y=".
+     - For example, =(setf (car x) 10)= becomes =(progn (rplaca x 10) 10)=
+   - 166: inversion is this transformation process of checking the argument and
+     converting it to the appropriate replacement operation.
+   - 166: Generalized variable: anything that can be in the first argument of
+     setf. Any macro call that expands into an invertible reference is itself
+     invertible.
+
+     This is wrong, due to multiple evaluation of =obj=
+     #+begin_src lisp
+       (defmacro toggle (obj)
+         `(setf ,obj (not ,obj)))
+     #+end_src
+     
+     (This is basically defmacroing a setf)     
+     #+begin_src lisp
+       (define-modify-macro toggle () not)
+
+       (let ((x (list t nil)))
+         (toggle (first x))
+         (toggle (second x))
+         x)
+     #+end_src
+     
+     If we want to make a macro that behaves like =setf= does, we can do this:
+     #+begin_src lisp
+       (defmacro toggle (&rest args)
+         `(progn
+            ,@(mapcar #'(lambda (place) `(toggle2 ,place)) args)))
+
+       (define-modify-macro toggle2 () not)
+
+
+       (let ((x (list nil nil nil)))
+         (toggle (first x) (second x) (third x))
+         x)
+     #+end_src
+   - 169: We can build new utilities that do assignments on generalized
+     variables. These must be macros so the references don't get evaluated on
+     the way to =setf=.
+
+     For example...
+     #+begin_src lisp
+       ;; (define-modify-macro concf (obj) nconc) really does:
+       ;; (defmacro concf (place . obj)
+       ;;   `(setf ,place (nconc ,place ,obj)))
+       ;; while also dealing with the multiple evaluation of ,place
+       (define-modify-macro concf (obj) nconc)
+     #+end_src
+     
+   - 171: Not all setf macros can be defined using =define-modify-macro=.
+     - Take =_f=, which takes an operator and a place, and sets the place to the
+       result of =(operator place optionalarg)=
+
+       WRONG:
+       #+begin_src lisp
+         (defmacro _f (op place &rest args)
+           `(setf ,place (,op ,place ,@args)))
+
+         (let ((i 0)
+               (xs '(1 2 3 4 5)))
+           ;; Sets (nth 1 xs) to (* (nth 2 xs) 10) = 30
+           (_f * (nth (incf i) xs) 10)
+           xs)
+       #+end_src
+
+     - 172: =get-setf-expansion= takes a generalized variable and returns the
+       required information to make a good setf macro.
+       - Returns: vars, vals, store-vars, writer-form, reader-form.
+       - Usage:
+         1) Bind each of =vars= to each of =vals=
+         2) Bind =store-vars= to =reader-form= modified by whatever change we want
+         3) Use =writer-form= to perform the update
+
+         All together:
+         #+begin_src lisp
+           (defmacro _f (op place &rest args)
+             (multiple-value-bind (vars vals store-vars writer-form reader-form) (get-setf-expansion place)
+               `(let* (,@(mapcar #'list vars vals)
+                       (,(car store-vars) (,op ,reader-form ,@args)))
+                  ,writer-form)))
+         #+end_src
+
+
+       - *THE DIFFERENCE BETWEEN THIS AND DEFUN SETF*: defun setf is for
+         defining a new /place/ to =setf= to, defining a macro with
+         =get-setf-expansion= or =define-modify-macro= is to make something like
+         =incf=
+   
+     - 175: If a function takes optional arguments, a macro build on that
+       function should take the same, and pass them on.
+
+
+     - 178: To define inversions, use =defsetf=
+       - [X] How does this differ from =defun setf=????
+         - IT DOESN'T. This is the CLTL2 version of doing things.
+           
+       For example, car:
+       #+begin_src lisp
+         (defsetf car (lst) (new-car)
+           `(progn (rplaca ,lst ,new-car) ,new-car))
+       #+end_src
+
+       =defsetf= automatically gensyms all of its arguments
+** Chapter 13: Computation at Compile-Time
+   - 181: Sometimes we can shift computation to compile time if nothing depends
+     on runtime values.
+** Chapter 14: Anaphoric Macros
+   - 189: Sometimes it's clearer to allow variable capture
+
+     Instead of this:
+     #+begin_src lisp
+       (let ((result (long-calculation)))
+         (if result
+             (foo result)))
+     #+end_src
+
+     Do this:
+     #+begin_src lisp
+       (if (long-calculation)
+           (foo it))
+     #+end_src
+
+   - 189: /anaphor/: an expression which refers back in the conversation (like
+     /it/).
+   - 190: In these macros, we capture the symbol =it=.
+     #+begin_src lisp
+       (defmacro aif (test-form then-form &optional else-form)
+         `(let ((it ,test-form))
+            (if it ,then-form ,else-form)))
+
+
+       (aif (+ 1 1) it 0)
+     #+end_src
+
+     =it= looks free in the source code, but it's really bound by the macro body
+     and hidden from the user.
+
+   - 191: =awhen= is similar to =aif=. =awhile= is often /more/ useful than
+     =while= since we like to use the condition
+
+     #+begin_src lisp
+       (defmacro awhile (test-form &body body)
+         `(do ((it ,test-form ,test-form))
+              ((not it))
+            ,@body))
+     #+end_src
+
+   - 193: =alambda= is cool - we bind =self= to the lambda itself so we can have
+     anonymous recursion.
+
+     #+begin_src lisp
+       (defmacro alambda (parms &body body)
+         `(labels ((self ,parms ,@body))
+            #'self))
+
+       (funcall (alambda (l) (if (null l) 0 (1+ (self (cdr l))))) '(1 2 3 4 5)) 
+     #+end_src
+
+   - 196: =nil= can serve as empty list, not-found, or found =nil=. To solve
+     this, we can use multiple return values, default return values, or large
+     return values (like returning the =cdr= starting at a find rather than just
+     returning the find). Multiple return values is cleanest.
+
+   - 198: Referential transparency of a language:
+     1) Every subexpression can be replaced be any other equal-valued expression
+     2) All occurrences of an expression in a given context yield the same value
+
+     - ALL LANGUAGES WITH ASSIGNMENT ARE NOT REFERENTIALLY TRANSPARENT. This
+       example violates (2)
+       #+begin_src lisp
+         (list x (setq x (not x)) x)
+       #+end_src
+** Chapter 15: Macros Returning Functions
+   - 201: Compose example that looks a lot like method combination:
+     #+begin_src lisp
+       (defmacro fn (expr) `#',(rbuild expr))
+
+       (defun rbuild (expr)
+         (if (or (atom expr) (eq (car expr) 'lambda))
+             ;; When the expr is an atom or a lambda, leave it alone
+             expr
+             ;; Otherwise, either join expr with ops or via compose
+             (if (eq (car expr) 'compose)
+                 (build-compose (cdr expr))
+                 (build-call (car expr) (cdr expr)))))
+
+       (defun build-call (op fns)
+         ;; This seems like we shouldn't be doing it cause we're in a function, but
+         ;; keep in mind that it's getting called at macro time
+         (let ((g (gensym)))
+           ;; To combine fns by op, we want a one-argument function that applies op to
+           ;; the result each function applied to the argument.
+           `(lambda (,g)
+              (,op ,@(mapcar #'(lambda (f) '(,(rbuild f) ,g)) fns)))))
+
+       (defun build-compose (fns)
+         (let ((g (gensym)))
+           ;; To combine functions by compose, we want a one argument function that
+           ;; applies each function in succession.
+           `(lambda (,g) ,(labels ((rec (fns)
+                                ;; rec applies rbuild of the first function to rec of
+                                ;; the rest of the functions (like a compose!!)
+                                (if fns
+                                    `(,(rbuild (car fns)) ,(rec (cdr fns)))
+                                    ;; Or if there aren't any, the argument.
+                                    ;; Altogether, it becomes (fn1 (fn2 (fn3 (... (fn-n g)))))
+                                    g)))
+                       (rec fns)))))
+     #+end_src
+
+   - 204: Anaphoric macros can provide a cleaner interface for recursion on cdrs
+     and recursion on subtrees. We can name things =it=, =rec=, =left=, =right,
+     etc.
+
+   - 211: We can use macros to provide a way of building delays (2-tuple of
+     whether or not it's been used, and the expression itself.)
+** Chapter 16: Macro-Defining Macros
+   - 213: We can use macros to abbreviate long names.
+     #+begin_src lisp
+       (defmacro abbrev (short long)
+         `(defmacro ,short (&rest args)
+            `(,',long ,@args)))
+
+       (defmacro abbrevs (&rest names)
+         `(progn
+            ,@(mapcar #'(lambda (pair) `(abbrev ,@pair)) (group names 2))))
+
+       (abbrev a b)
+     #+end_src
+
+     Note how annoying nested backquotes are. Just remember that every comma
+     needs a backquote.
+
+   
+   - 216: We can use a macro to provide an interface to the generalized variable
+     of something, then change out the retrieval method without having to change
+     the source. i.e. have =(setf (my-macro obj) 'whatever)= and then have
+     =my-macro= expand to a generalized variable.
+
+     If we define such a macro like this:
+     #+begin_src lisp
+       (defmacro my-property (obj)
+         `(get ,obj 'my-property))
+     #+end_src
+
+     Then we'll see that this is the same shape for any such
+     property. Therefore, we should define a macro-defining macro to abstract
+     that out.
+
+     #+begin_src lisp
+       ;; Initial macro we want to create through another macro
+       (defmacro color (obj)
+         `(get ,obj 'color))
+
+       ;; Pull out property name
+       (defmacro color (obj)
+         (let ((p 'color))
+           `(get ,obj ',p)))
+
+       ;; Make into template
+       `(defmacro prop (obj)
+          (let ((p 'color))
+            `(get ,obj ',p)))
+
+       ;; Simplify template
+       `(defmacro prop (obj)
+          `(get ,obj ',',prop))
+
+       ;; Final form
+       (defmacro propmacro (prop)
+         `(defmacro ,prop (obj)
+            `(get ,obj ',',prop)))
+
+       (propmacro color)
+     #+end_src
+
+   - [ ] 219: Anaphoric macro defining macro I don't quite understand
+** Chapter 17: Read-Macros
+   - 224: Three phases of a Lisp expression: read-time, compile-time, and
+     runtime.
+     - Functions have control at runtime
+     - Macros transform programs at compile-time
+     - READ-MACROS work at read-time!
+   - 224: Macro character: tells the Lisp reader to do something different.
+   - 224: =set-macro-character= is one way to define a read-macro.
+     #+begin_src lisp
+       (set-macro-character #\% #'(lambda (stream char) (print "Hello world!")))
+     #+end_src
+
+     Quote might be defined like this:
+     #+begin_src lisp
+       (set-macro-character #\'
+                            #'(lambda (stream char)
+                                (list 'quote (read stream t nil t))))
+     #+end_src
+
+   - 225: read arguments:
+     1) Stream to read from
+     2) End-of-file causes error?
+     3) What value to return on EOF if not an error
+     4) Whether or not this =read= call is inside another =read= call.
+
+     Generally in read macros, (2) and (4) should be =t=, so we don't care about
+     (3).
+
+   - 225: Read macros are more powerful than regular macros because we can also
+     operate directly on the text, while still having the option to work with
+     the Lisp objects that regular macros do.
+
+   - 226: A /dispatching/ read macro consists of two characters. Use
+     =make-dispatch-macro-character= to define your own (like #), but we can
+     also just keep using # with =set-dispatch-macro-character= and provide a
+     two character trigger.
+
+     #+begin_src lisp
+       (set-dispatch-macro-character #\# #\?
+                                     ;; When you see #?
+                                     #'(lambda (stream char1 char2)
+                                         ;; Return a lambda taking one argument and
+                                         ;; returning the next expression
+                                         (let ((arg (gensym))) 
+                                           `#'(lambda (&rest ,arg)
+                                                (declare (ignore ,arg))
+                                                ,(read stream t nil t)))))
+
+       (mapcar #?2 '(a b c))
+     #+end_src
+
+   - 227: Another reserved read macro is =#[=. We need to set =]= to close it,
+     hence the =set-macro-character=.
+     #+begin_src lisp
+       (set-macro-character #\] (get-macro-character #\)))
+
+       (set-dispatch-macro-character #\# #\[
+                                     #'(lambda (stream char1 char2)
+                                         (let ((accum nil)
+                                               (pair (read-delimited-list #\] stream t)))
+                                           (loop for i from (ceiling (car pair)) to (floor (cadr pair)) do
+                                             (push i accum))
+                                           (list 'quote (nreverse accum)))))
+
+       #[1 10]
+
+     #+end_src
+
+
+   
+     #+begin_src lisp
+       (defmacro defdelim (left right parms &body body)
+         `(ddfn ,left ,right #'(lambda ,parms ,@body)))
+
+       (let ((rpar (get-macro-character #\))))
+         (defun ddfn (left right fn)
+           (set-macro-character right rpar)
+           (set-dispatch-macro-character #\# left
+                                         #'(lambda (stream char1 char2)
+                                             (apply fn (read-delimited-list right stream t))))))
+
+       (defdelim #\[ #\] (x y)
+         (list 'quote (loop for i from (ceiling x) to (floor y) collect i)))
+
+
+       #[1 10]
+     #+end_src
+
+   - 229: Having a read macro inside a regular macro is fine. The read macro
+     just expands before the normal macro is called, and everything works out.
+** Chapter 18: Destructuring
+   - 231: =destructuring-bind= is the code that's used to parse macro arguments!
+     You can apply it to arbitrarily complex lists.
+
+   - 232-234: complicated binding macro...
+
+   - 235: destructuring a struct:
+     #+begin_src lisp
+       (defun mkstr (&rest args)
+         (with-output-to-string (s)
+           (dolist (a args) (princ a s))))
+
+       (defun symb (&rest args)
+         (values (intern (apply #'mkstr args))))
+
+       (defmacro with-struct ((name . fields) struct &body body)
+         (let ((gs (gensym)))
+           `(let ((,gs ,struct))
+              (let ,(mapcar #'(lambda (f) `(,f (,(symb name f) ,gs))) fields)
+                ,@body))))
+     #+end_src
+
+   - 236: =with-slots= allows destructuring on class instances. This is an
+     interesting case because it doesn't just bind the value of the slot, but
+     allow references to it. This works because the bindings are defined as
+     symbol-macros. To do this, we expand into a =symbol-macrolet= rather than a
+     =let=.
+
+     #+begin_src lisp
+       (let ((a (list 1 2 3)))
+         (symbol-macrolet ((x (car a)))
+           (setf x 10)
+           a))
+
+
+       (symbol-macrolet ((x '(car twenty)))
+         x)
+
+       (defmacro with-car ((var) xs &body body)
+         `(symbol-macrolet ((,var (car ,xs)))
+            ,@body))
+
+       (let ((xs (list 1 2 3))) 
+         (with-car (x) xs
+           (setf x 100)
+           xs))
+
+
+
+
+     #+end_src
+   

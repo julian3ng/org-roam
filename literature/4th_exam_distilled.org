@@ -1,0 +1,755 @@
+* 14.1: Good and Bad Relation Schemas
+  - The meaning of a database should be clear from its design
+  - Tables should be specific to a single concept
+    - Don't clutter tables with multiple entities or relationships
+  - Redundancy should be minimized
+  - Try not to store natural joins on account of *update anomalies*
+    - *Insertion anomaly*: In a join table between two entities, adding one
+      entity without the other requires one side of the tuple to be filled with
+      NULLs. Furthermore, one side will have the primary key and thus /cannot/
+      be omitted, even if such an association is unwanted.
+
+      | (_X_ | Y)   | (Z)  | #Notes                  |
+      |------+------+------+-------------------------|
+      | 1    | 2    | NULL | Unnecessary NULL        |
+      | NULL | NULL | 3    | Missing primary key     |
+      
+    - *Deletion anomaly*: Deleting the last of one entity will also delete the
+      other entity
+
+      | (_X_ | Y) | (Z) | #Notes                                                  |
+      |    1 |  2 |   3 | Deleting (1, 2) would also delete 3, even if we want it |
+  
+    - *Update anomaly*: Updating the property of a shared entity will require it
+      to be updated in every row associated with it
+
+      | (_X_ | Y) | (Z) | #Notes                                               |
+      |    1 |  2 |   3 | <-- update 3                                         |
+      |    2 |  2 |   3 | <-- update 3                                         |
+      |    3 |  4 |   3 | <-- update 3                                         |
+      |    4 |  5 |   3 | Updating 3 to something else must happen in all rows |
+
+  - NULL values should be minimized
+    - Don't include columns that only apply to a small number of rows; instead,
+      create a new relation
+
+  - Spurious tuples should be impossible to create
+    - *Spurious Tuple*: when a join between relations on a non-key attribute
+      happens, we can get valid tuples that don't exist in reality.
+* 14.2: Functional Dependencies
+  A *functional dependency* $X \to Y$ between sets of attributes $X$ and $Y$
+  that are subsets of relation $R$ constraints the valid states $r$ of $R$.
+
+  For any tuples $t_1, t_2$, we must have that $t_1[X] = t_2[X]$ implies $t_1[Y]
+  = t_2[Y]$.
+
+  Basically, it's like a function - given the same input values $t_1[X] =
+  t_2[X]$, we should get the same output values $t_1[Y] = t_2[Y]$ (think of the
+  vertical line test - for the same X, we shouldn't get more than one Y).
+
+  $X$ is the *left hand side$ and $Y$ is the *right hand side*.
+
+  The valid $r$s are the *legal relation states* or *legal extensions* of $R$.
+
+  If we have a constraint on $R$ saying we can't have more than one tuple with a
+  given value of $X$ in a state $r$ of $R$, meaning $X$ is a *candidate key* of
+  $R$, then we have $X \to Y$ for all subsets $Y$ of $R$.
+
+  $X \to Y$ does not imply $Y \to X$
+
+  A functional dependency $X \to Y$ is *trivial* if $Y \subseteq X$.
+  
+* 14.3: Normal Forms
+  Desirable properties:
+  1) Nonadditive join / lossless join property: joining relations doesn't create
+     tuples that don't actually exist.
+  2) Dependency preservation property: all functional dependencies are
+     represented in individual relations after normalization.
+
+
+  Lower normal forms can be used for performance reasons; the process of
+  converting to a lower form is called *denormalization*.
+** Vocab
+   - *Superkey*: A set of attributes such that the value of those attributes is
+     never repeated between two tuples in a given relation state.
+   - *Key*: A superkey such that removing any attribute from it will also break
+     the superkey property.
+   - *Candidate Key*: If there are multiple keys, each is a candiate key.
+   - *Primary Key*: An arbitrarily selected candidate key becomes the primary key.
+   - *Prime Attribute*: An attribute is prime if it is part of any candidate key.
+** 1NF: Atomicity
+   A relation is in 1NF if it has no sets or tuplues of values as the value of
+   an attribute, and no nested relations.
+
+   | _X_ |  Y | Z         |
+   |-----+----+-----------|
+   |   1 |  2 | {3, 4, 5} |
+   |   2 | 10 | {6, 7, 8} |
+
+   Should become:
+
+   | _X_ |  Y |
+   |-----+----|
+   |   1 |  2 |
+   |   2 | 10 |
+
+   | _X_ | _Z_ |
+   |-----+-----|
+   |   1 |   3 |
+   |   1 |   4 |
+   |   1 |   5 |
+   |   2 |   6 |
+   |   2 |   7 |
+   |   2 |   8 |
+
+   Similarly:
+
+   | _X_ |  Y | (_Z_ | A ) |
+   |-----+----+------+-----|
+   |   1 |  2 |    3 |   4 |
+   |   1 |  3 |    4 |   5 |
+   |   2 | 10 |    3 |   6 |
+   |   2 | 11 |    7 |   8 |
+
+   Should become:
+
+   | _X_ |  Y |
+   |-----+----|
+   |   1 |  2 |
+   |   1 |  3 |
+   |   2 | 10 |
+   |   2 | 11 |
+
+   | _X_ | _Z_ | A |
+   |-----+-----+---|
+   |   1 |   3 | 4 |
+   |   1 |   4 | 5 |
+   |   2 |   3 | 6 |
+   |   2 |   7 | 8 |
+** 2NF: Full Functional Dependency
+   A relation schema is 2NF if every nonprime attribute $A$ of $R$ is fully
+   functionally dependent on the primary key of $R$. More generally, $R$ is in
+   2NF if every nonprime attribute $A$ of $R$ is not partially dependent on any
+   key of $R$ (so either not dependent at all or fully dependent on a key).
+
+   In short, every attribute not part of a candidate key must be functionally
+   dependent on the entire primary key of $R$.
+
+   In general, every attribute not part of a candidate key must be either be
+   fully functionally dependent on or not dependent on every candidate key of
+   $R$.
+   
+   To normalize from 1NF to 2NF, take every attribute that depends on some
+   subset of a primary key along with that subset and create a new relation
+   keyed to that subset. In general, we can do this even if the key in question
+   is not the primary key.
+
+   Example: $XYZ \to A$, but also $XY \to A$ or $XZ \to A$ (or even $Y \to A$ or
+   $Z \to A$)
+
+   | _X_ | _Y_ | _Z_ | A |
+   |-----+-----+-----+---|
+   |   1 |   2 |   3 | 4 |
+   |   1 |   3 |   4 | 5 |
+   |   1 |   4 |   5 | 6 |
+
+   Becomes (taking $XY \to A$)
+
+   | _X_ | _Y_ | _Z_ |
+   |-----+-----+-----+
+   |   1 |   2 |   3 |
+   |   1 |   3 |   4 |
+   |   1 |   4 |   5 |
+
+   | _X_ | _Y_ | A |
+   |-----+-----+---|
+   |   1 |   2 | 4 |
+   |   1 |   3 | 5 |
+   |   1 |   4 | 6 |
+   
+   The goal of 2NF is to remove nonprime attributes depending on proper subsets
+   of keys.
+   
+*** Vocab
+    *Full Functional Dependency*: $X \to Y$ is a full functional dependency if
+     removing any attribute from $X$ breaks the dependency.
+     $X \setminus A$ can have two tuples with the same values for $X \setminus A$
+     but different values for $Y$.
+ 
+    *Partial Functional Dependency*: A functional dependency is partial if it is
+     not full; that is, we can remove an attribute without breaking the
+     dependency.
+
+** 3NF: Transitive Dependency
+   A relation is in 3NF if it is in 2NF and no nonprime attribute of $R$ is
+   transitively dependent on the primary key. In general, $R$ is in 3NF if every
+   nontrivial functional dependency $X \to A$ has $X$ as a superkey or $A$ as a
+   prime attribute. Alternatively, $R$ is in 3NF if every nonprime attribute is
+   fully functionally dependent on all keys of $R$, AND it is nontransitively
+   dependent on all keys of $R$.
+
+   To fix schemas not in 3NF, pull out $Z \to Y$ into its own relation with the
+   primary key being $Z$.
+
+   For example: $X \to Z \to Y$ should do the following:
+
+   | _X_ | Z | Y     |
+   |-----+---+-------|
+   |   1 | 1 | 'foo' |
+   |   2 | 2 | 'bar' |
+   |   3 | 3 | 'baz' |
+   |   4 | 3 | 'baz' |
+
+   Becomes:
+
+   | _X_ | Z |
+   |-----+---|
+   |   1 | 1 |
+   |   2 | 2 |
+   |   3 | 3 |
+   |   4 | 3 |
+
+   | _Z_ | Y     |
+   |-----+-------|
+   |   1 | 'foo' |
+   |   2 | 'bar' |
+   |   3 | 'baz' |
+
+   The goal of 3NF is to remove nonprime attributes determining other nonprime
+   attributes.
+
+*** Vocab
+    *Transitive Dependency*: $X \to Y$ is a transitive dependency if there
+    exists set of attributes $Z$ that is neither a candidate key or part of
+    another key, such that $X \to Z$ and $Z \to Y$ are both functional
+    dependencies.
+
+** BCNF: Catch an Edge Case
+   3NF edge case: we can have $X \to Y$ where $X$ is not a superkey but $Y$ is a
+   prime attribute, we still satisfy the 3NF conditions, but we have some
+   inefficiency, namely, that we can pull out $X \to Y$ to remove redundancy in
+   the original relation.
+
+   A relation schema is in BCNF if whenever a nontrivial functional dependency
+   $X \to A$ holds in $R$, then $X$ is a superkey of $R$.
+
+   This is just the general 3NF without the second condition ($A$ being a prime
+   attribute). Parts of keys are no longer allowed to depend on other things
+
+   With $X \to Z$, $Z \to Y$, we have 
+   | _X_ | Y | A | Z   |
+   |-----+---+---+-----|
+   |   1 | 2 | 3 | 'a' |
+   |   1 | 2 | 4 | 'a' |
+   |   2 | 3 | 5 | 'b' |
+
+   This should become:
+
+   | _X_ | A | Z   |
+   |-----+---+-----|
+   |   1 | 3 | 'a' |
+   |   1 | 4 | 'a' |
+   |   2 | 5 | 'b' |
+
+   | _Y_ | Z   |
+   |-----+-----|
+   |   2 | 'a' |
+   |   3 | 'b' |
+
+*** Sometimes we can't normalize while preserving functional dependencies
+    Remember the *Nonadditive Join Property*
+
+    *NJB: Nonadditive Join Test for Binary Decompositions*: Decomposition $D =
+    \{R_1, R_2\}$ of $R$ has the lossless join property with respect to set of
+    functional dependencies $F$ of $R$ IFF either:
+    - The FD $((R_1 \cap R_2) \to (R_1 \setminus R_2))$ is in $F^{+}$ OR
+    - The FD $((R_1 \cap R_2) \to (R_2 \setminus R_1))$ is in $F^{+}$
+
+
+    To normalize a non-BCNF schema while preserving the lossless join property:
+
+    Given relation $R$ with $X \subseteq R$ and $X \to A$ breaking BCNF ($X$ is
+    non-superkey, $A$ is prime attribute), split it into the two relations:
+    - $R \setminus A$
+    - $XA$
+
+
+    | _K_ | /A | B/  | X |
+    |-----+----+-----+---|
+    |   1 |  2 | 'a' | 5 |
+    |   2 |  2 | 'a' | 5 |
+    |   3 |  3 | 'a' | 4 |
+
+    Becomes:
+
+    | _K_ | B   | X |
+    |-----+-----+---|
+    |   1 | 'a' | 5 |
+    |   2 | 'a' | 5 |
+    |   3 | 'a' | 4 |
+
+    | _A_ | X |
+    |-----+---|
+    |   2 | 5 |
+    |   3 | 4 |
+    
+** 4NF: Multivalued Dependency
+   A relation schema $R$ is in 4NF with respect to set of dependencies $F$ of
+   multivalued and functional dependencies if for every MVD $X \to\to Y$ in
+   $F^{+}$ (denotes all functional dependencies as well as those implied by
+   $F$), $X$ is a superkey of $R$.
+
+   To normalize into 4NF, move each part of the MVD into its own relation such
+   that the new relations are trivial MVDs.
+   
+*** Vocab
+    *Multivalued Dependency*: $X \to\to Y$ on $R$, $X$ and $Y$ subsets of $R$
+    specifies that on any state $r$ of $R$:
+
+    If any tuples $t_1, t_2$ exist on $r$ with $t_1[X] = t_2[X]$, then two tuples
+    $t_3, t_4$ (not necessarily distinct) should also exist with all of:
+    - $t_3[X] = t_4[X] = t_1[X] = t_2[X]$
+    - $t_3[Y] = t_1[Y]$ AND $t_4[Y] = t_2[Y]$
+    - $t_3[Z] = t_2[Z]$ AND $t_4[Z] = t_1[Z]$ where $Z = R \setminus (X \cup Y)$
+
+
+    By symmetry, if $X \to\to Y$, then $X \to\to Z$.
+
+    Think of a table like this for $X \to\to Y | Z$
+
+    | X | Y | Z |
+    |---+---+---|
+    | 1 | 2 | 4 |
+    | 1 | 3 | 5 |
+    | 1 | 2 | 5 |
+    | 1 | 3 | 4 |
+
+    MVDs tend to show up when more than one 1:N relationship on $X$ are in the
+    same relation, and we need to maintain independence between $Y$ and $Z$.
+
+    *Trivial MVD*: $Y \subseteq X$ or $X \cup Y = R$
+
+    
+    
+** 5NF: Join Dependency
+   A relation schema $R$ is in 5NF with respect to a set of functional,
+   multivalued, and join dependencies $F$ if for every nontrivial join
+   dependency $JD(R_1, R_2, \dotsc, R_n)$ in $F^{+}$, every $R_i$ is a superkey
+   of $R$.
+
+   Example) Say we have suppliers, parts, and projects, and this constraint:
+   - If a supplier $s$ supplies a part $p$, a project $j$ uses that part $p$,
+     and $s$ supplies at least one part to $j$, then the
+     $s$ supplies $p$ to $j$.
+   - This specifies the join constraint $JD(R_1, R_2, R_3)$ where $R_1$ is
+     supplier|part, $R_2$ is part|project, and $R_3$ is supplier|project.
+   - Joinin any two of suppliers, parts, and projects can create spurious
+     tuples, but joining all three maintains the nonadditive join property.
+
+   Result that is used more often: if a schema is in 3NF and all its keys are
+   single attributes, then it is also in 5NF.
+
+*** Vocab
+    *Join Dependency*, denoted $JD(R_1, R_2, \dotsc, R_n)$ on relation schema $R$
+    specifies a constraint on states $r$ of $R$. The constraint is that all $r$s
+    should have a nonadditive join decomposition into $R_1, R_2, \dotsc, R_n$.
+    Thus, for every such $r$, we have $(\pi_{R_1}(r), \pi_{R_2}(r), \dotsc,
+    \pi_{R_n}(r)) = r$
+
+    MVDs are JDs of $n=2$.
+
+    *Trivial JD*: some $R_i = R$.
+
+    
+* 15.1: Inference Rules, Equivalence, Minimal Cover
+** Inference Rules
+   $F$ denotes the set of functional dependencies that are explicitly defined by
+   the schema designer. Others can be inferred though.
+
+   FD $X \to Y$ is *inferred from* or *implied by* a set of dependencies $F$
+   specified on $R$ if $X \to Y$ holds on every legal state $r$ of $R$. This
+   means that whenever state $r$ satisfies all dependencies in $F$, it also
+   satisfies $X \to Y$.
+
+   The *closure* of $F$ is the set of dependencies $F$ along with all
+   dependencies that can be inferred from $F$. We denote this closure $F^+$.
+
+   Notation: $F |= X \to Y$ means the FD $X \to Y$ is inferred from $F$.
+*** Armstrong's Axioms
+    - IR1 (reflexive rule): If $X \supseteq Y$ then $X \to Y$
+      - PROOF: suppose two tuples $t_1, t_2$ exist in state $r$ of $R$ with
+        $t_1[X] = t_2[X]$. $Y \subseteq X$, so we have $t_1[Y] = t_2[Y]$ as well.
+      
+    - IR2 (augmentation rule): $\{X \to Y\} |= XZ \to YZ$
+      - PROOF: Assume we have $X \to Y$ but not $XZ \to YZ$.
+        There must be $t_1, t_2$ such that $t_1[XZ] = t_2[XZ]$ and $t_1[YZ] \neq
+        t_2[YZ]$
+        We have that $t_1[X] = t_2[X]$ and $t_1[Y] = t_2[Y]$, and we can easily derive
+        $t_1[Z] = t_2[Z]$, which is a contradiction. 
+      
+    - IR3 (transitive rule): $\{X \to Y, Y \to Z\} |= X \to Z$
+      - PROOF: By definition, we have $t_1[X] = t_2[X]$ implies $t_1[Y] =
+        t_2[Y]$, which in turn implies $t_1[Z] = t_2[Z]$.
+
+    This set of rules is *sound* (any inferred dependency satisfies the
+    dependencies of $F$) and *complete* (repeatedly using IR1-3 will eventually
+    get us all dependencies that are possible to infer)
+
+    Thus, $F^+$ can be derived by using IR1 through IR3 and nothing else.
+
+    Additional rules that derive from IR1-3:
+
+    - IR4 (decomposition/projection rule): $\{X \to YZ\} |= X \to Y$
+      - PROOF: $X \to YZ$ is given. $YZ \to Y$ is valid because $YZ \supseteq
+        Y$. By transitivity, $X \to YZ, YZ \to Y$ implies $X \to Y$.
+      
+    - IR5 (union/addition rule): $\{X \to Y, X \to Z\} |= X \to YZ$
+      - PROOF: $X \to Y$ gives $X \to XY$ by augmentation, and $X \to Z$ gives
+        $XY \to YZ$ by augmentation. $X \to YZ$ follows by transitivity.
+    - IR6 (psuedotransitive rule): $\{X \to Y, WY \to Z\} |= WX \to Z$
+      - PROOF: $X \to Y$ gives $WX \to WY$ by augmentation. $WX \to WY, WY \to
+        Z$ gives $WX \to Z$ by transitivity.
+*** How to derive all functional dependencies
+    - Start with $F$.
+    - Let $X$ be the set of attributes on the left hand side of all dependencies
+      in $F$.
+    - *Closure of $X$ under $F$*, denoted $X^+$
+      - Start with $F$ on schema $R$ with set of attributes $X \subseteq R$:
+        1) Start with $X^+ = X$
+        2) Repeat the following:
+           1) $oldX^+ = X^+$
+           2) For each FD $Y \to Z$ in $F$:
+              1) if $X^+ \supseteq Y$ then $X^+ = X^+ \cup Z$
+           3) Repeat =for= until $oldX^+ = X^+$
+*** Equivalence of Sets of FDs
+    - Functional dependency set $F$ *covers* $E$ if every FD in $E$ is in $F^+$.
+    - $E$ and $F$ are equivalent if $E^+ = F^+$, that is, every FD in $E$ can be
+      inferred from $F$ and vice versa. In other words, $E$ and $F$ cover each
+      other.
+
+
+    To check if $F$ covers $E$: 
+    - Calculate $X^+$ with respect to $F$ for each FD $X \to Y$ in $E$, then
+      check if $X^+$ includes the attributes in $Y$. (What this tells us is that
+      we have $X \to Y$, /using the rules of $F$/).
+
+
+    Example solve:
+
+    - $F = \{A \to C, AC \to D, E \to AD, E \to H\}$
+    - $G = \{A \to CD, E \to AH\}$
+
+    - $F$ covers $G$:
+      - $A \to CD$:
+        - $A \to C$ implies $A \to AC$ by augmentation
+        - $A \to AC, AC \to D$ implies $A \to D$ by transitivity
+        - $A \to C, A \to D$ implies $A \to CD$ by union
+      - $E \to AH$:
+        - $E \to AD$ implies both $E \to A$ and $E \to D$ by decomposition
+        - $E \to A, E \to H$ implies $E \to AH$ by union
+    - $G$ covers $F$:
+      - $A \to C$:
+        - $A \to CD$ implies $A \to C$ by decomposition
+      - $AC \to D$:
+        - $A \to CD$ implies $AC \to CD$ by augmentation
+        - $AC \to CD$ implies $AC \to D$ by decomposition
+      - $E \to AD$:
+        - $E \to AH$ implies $E \to A$ by decomposition
+        - $A \to CD$ implies $A \to ACD$ by augmentation
+        - $A \to ACD$ implies $A \to AD$ by decomposition
+        - $E \to A, A \to AD$ implies $E \to AD$ by transitivity
+      - $E \to H$:
+        - $E \to AH$ implies $E \to H$ by decomposition
+*** Minimal Set of Functional Dependencies
+    What's the smallest $F$ that gives us the same $F^+$?
+
+    *Minimal Cover* of a set of functional dependencies $E$ is the dependency
+    set $F$ whose closure $F^+$ contains all dependencies in $E$. $F$ must also
+    /stop/ containing all dependencies in $E$ if a dependency is removed from
+    $F$. (It covers $E$ and is minimal).
+
+    *Extraneous Attribute*: An attribute of a functional dependency is an
+    extraneous attribute if removing it does not change the closure of the set
+    of dependencies.
+    - Formally: given $F$ and $X \to A$ in $F$, $Y$ is extraneous in $X$ if $Y
+      \subset X$ and $F$ implies $(F - (X \to A) \cup \{(X - Y) \to A\})$ ($F$
+      implies all the functional dependencies of $F$ without $X \to A$, together
+      with $(X - Y) \to A$).
+
+**** *Minimal Set of Functional Dependencies*:
+     $F$ is minimal if:
+     1) Every dependency in $F$ has a single attribute on its RHS (all
+        dependencies are in canonical form)
+       
+     2) We cannot replace any $X \to A$ in $F$ with some $Y \to A$ with $Y
+        \subset X$ while maintaining equivalency to $F$ (there are no redundant
+        attributes on the LHSs)
+     3) We cannot remove any dependency from $F$ and maintain equivalency to $F$
+        (there are no dependencies we can infer from the others)
+
+**** *Minimal Cover of a Set of Functional Dependencies*
+     The minimcal cover of the set of FDs $E$ is the minimal set of FDs (as
+     defined above) that is equivalent to $E$. We can always find on such set
+     with this algorithm:
+
+     Given $E$:
+     1) Set $F = E$
+     2) Replace each functional dependency $X \to A_1A_2\dotsc{A_n}$ with $X \to
+        A_1, X \to A_2, \dotsc, X \to A_n$
+     3) For each $X \to A$ in $F$:
+        1) For each attribute $B$ in $X$:
+           1) If $\{\{F \setminus \{X \to A \}\} \cup \{(X \setminus \{B\}) \to
+              A\}\}$ is equivalent to $F$ (replacing $X$ with $X \setminus \{B\}$
+              is still equivalent):
+              1) Then replace $X \to A$ with $(X \setminus \{B\}) \to A$ in $F$
+
+     4) For each remaining $X \to A$ in $F$;
+        1) If $\{F \setminus \{X \to A\}\}$ is equivalent to $F$:
+           1) Then remove $X \to A$ from $F$ (remove dependencies that are
+              implied by the rest)
+
+
+     Example:
+     - $E = \{B \to A, D \to A, AB \to D\}$
+     - Canonicalize: $\{B \to A, D \to A, AB \to D\}$ is already in canonical
+       form.
+     - Extraneous Attributes: Check if $AB \to D$ can be replaced by $A \to D$ or
+       $B \to D$:
+       - $B \to A |= B \to AB$ by augmentation
+       - $B \to AB, AB \to D |= B \to D$ by transitivity
+       - Is $\{B \to A, D \to A, B \to D\}$ equivalent to $E$?
+         - Must show $AB \to D$ in that context.
+           - $B \to A, B \to D |= B \to AD$ by union
+           - $B \to AD |= AB \to AD$ by augmentation
+           - $AB \to AD |= AB \to D$ by decomposition
+         - The rest exist as FDs already so they're trivial.
+     - Extraneous Rules: Check if any FDs are implied by the rest:
+       - $B \to A$ is implied by $B \to D, D \to A$, so it can be removed
+**** Key Finder Algorithm
+     Find key $K$ for $R$ with FDs $F$:
+
+     1) Set $K = R$
+     2) For each attribute $A$ in $K$:
+        - Compute $(K - A)^+$ in $F$
+        - If $(K - A)^+$ contains all attributes in $R$, then $K = (K - A)$
+
+
+     Essentially: start with all attributes and try removing them one by one. If
+     the remaining attributes contain all attributes in $R$ under FDs $F$, we're
+     still have a key.
+* 15.2 Properties of Relational Decompositions
+  Looking at relations in isolation doesn't guarantee good design even with
+  higher normal form; we must check the set of relations that make up the schema
+  for goodness.
+
+
+  *Universal Relation Schema* is just all attributes in one schema: $R = \{A_1,
+  A_2, \dotsc, A_n\}$
+
+  *Universal Relation Assumption*: all attribute names are unique.
+
+  The functional dependencies $F$ are given by the database designers.
+
+  Algorithms decompose $R$ into a set of relation schemas $D = \{R_1, R_2,
+  \dotsc, R_n\}$.
+
+  $D$ is the *decomposition* of $R$.
+
+  *Attribute Preservation*: We need all attributes of $R$ to show up in the
+  decomposition $D$. Formally, $\cup_{i=1}^{n}(R_i) = R$
+
+  We want each $R_i$ to be in BCNF or 3NF, but doing this doesn't guarantee good
+  database design.
+** Dependency Preservation
+   We want all $X \to Y$ in $F$ to be show either directly in some $R_i$ or be
+   inferrable from its dependencies.
+
+   If we can't do this, then we may have to join schemas to involve all
+   attributes of a dependency.
+
+   Formal Definition: Given dependencies $F$ on $R$, the *projection* of $F$ on
+   $R_i$, denoted $\pi_{R_i}(F)$ with $R_i \subseteq R$, is the set of
+   dependencies $X \to Y$ in $F^+$ such that the attributes $X \cup Y$ are
+   contained in $R_i$. The projection of $F$ on each relation schema $R_i$ of
+   decomposition $D$ is the set of all functional dependencies in $F^+$ who have
+   all of their left and right attributes contained in some $R_i$.
+
+   $D$ is *dependency-preserving* with respect to $F$ if the union of
+   projections of $F$ on each $R_i$ of $D$ is equivalent to $F$.
+
+   $$(\bigcup_{i=1}^{m}(\pi_{R_i}(F)))^+ = F^+$$
+
+
+   If a dependency is lost, that is, its attributes are spread across two or
+   more relations, we need to join those relations and check if the dependency
+   works in the join (THIS ISN'T PRACTICAL).
+
+   *CLAIM (unproven)*: we can always find a dependency-preserving decomposition
+   $D$ of $R$ such that each $R_i$ is in 3NF.
+** Nonadditive (Lossless) Join Property
+   No spurious tuples in a natural join from a decomposition!
+
+   This is a property of relation schemas, so no spurious tuples should arise
+   from natural joins in any legal state. Legal states depend on functional
+   dependencies, so the lossless join property is defined with respect to the
+   set of dependencies $F$.
+
+   Formal Definition: $D = \{R_1, R_2, \dotsc, R_n\}$ has the *lossless
+   (nonadditive) join property* with respect to $F$ if for every state $r$ of
+   $R$, the following holds:
+
+   $*(\pi_{R_1}(r), \pi_{R_2}(r), \dotsc, \pi_{R_n}(r)) = r$
+
+   (* means natural join)
+
+   *NJB: Nonadditive Join Test for Binary Decompositions*: Decomposition $D =
+   \{R_1, R_2\}$ of $R$ has the lossless join property with respect to set of
+   functional dependencies $F$ of $R$ IFF either:
+   - The FD $((R_1 \cap R_2) \to (R_1 \setminus R_2))$ is in $F^{+}$ OR
+   - The FD $((R_1 \cap R_2) \to (R_2 \setminus R_1))$ is in $F^{+}$
+
+
+   To test $D$ in general for $n$ relations:
+
+   1) Create matrix $S$ with one row per $R_i$ in $D$ and one column per $A_J$
+      in $R$.
+   2) Set $S(i, j) = b_{ij}$ where $b_{ij}$ is some symbol associated with
+      indices $i, j$.
+   3) For each $i$, for each $j$, if $R_i$ has $A_j$, set $S(i, j) = a_j$ where
+      $a_j$ is some symbol associated with index $j$.
+   4) Repeat until no changes to $S$ are made in a loop:
+      - For each $X \to Y$ in $F$:
+        - For all rows of $S$ with all the symbols associated with attributes in
+          $X$:
+          - For all columns corresponding to attribute Y:
+            - If any of these rows have an $a$ symbol, set the cells in this
+              column in the other rows to that same $a$ symbol.
+            - If no such $a$ symbol exists, pick a $b$ symbol for those cells.
+   5) If a row has all $a$ symbols, then it has the nonadditive join property.
+      Otherwise, the matrix serves as a counterexample.
+** Preservation of Nonadditive Join Decompositions
+   If $D = \{R_i\}$ has the nonadditive join property with respect to $F$ on
+   $R$, and $D_i = \{Q_j\}$ (a decomposition of $R_i$) has the nonadditive join
+   property with respect to $F$ on $R_i$, then $D_2 = \{R_1, \dotsc, Q_1,
+   \dotsc, Q_m, \dotsc, R_n\}$ has the nonadditive join property w.r.t. $F$ on $R$
+
+* 16 (Not 16.2.3, 16.8.3, 16.10, 16.11)
+** 16.1: Introduction
+   - *Storage Medium*: physical thing we store data on
+     - Primary Storage: directly manipulated by CPU (ex: main memory and caches)
+       - Static RAM (for caches): more expensive, faster
+       - Dynamic RAM (DRAM): cheaper, slower, volatile
+     - Secondary Storage: magnetic disks, SSDs
+     - Tertiary Storage: removable media like CDs, USBs, etc.
+   - Storage sizes: we're using powers of 10, so kilo means 1000, mega means
+     1^6, etc.
+   - Flash Memory: high density, high performance memory that use EEPROM
+     technology (electrically erasable programmable read-only memory).
+     - Fast access, but entire thing must be wiped and written to simultaneously.
+     - NAND and NOR flavors available. NAND is more storage per dollar.
+   - Optical Drives: (like CDs). Static, read by laser.
+   - Magnetic Tapes: used for archival and backup purposes. Stupidly high
+     storage, very slow access.
+
+
+   - Storage organization:
+     - *Persistent Data*: written rarely, read often, long lifetime.
+     - *Transient Data*: short existence
+   - Most databases are stored on magnetic disk secondary storage on account of
+     size, risk analysis, and cost.
+
+
+   *Online device*: accessible at any time. SSD count, magnetic tapes don't.
+
+   Physical database design requires consideration to how data is organized
+   physically - where do we put the data? On tapes? In RAM?
+
+   Generally only a small part of the DB is used at a time; this has to be found
+   and loaded into memory and then written back if updated.
+
+   *Primary file organization*: how file records are placed on disk, and how to
+   access them. Records are facts about entities, their attributes, and their
+   relationships.
+   - Heap file: records are unordered, just appended to the end.
+   - Sorted file: records are ordered by some sort key.
+   - Hashed file: records are ordered by the hash of some key field
+   - B-Tree: one way to use a tree structure to order records
+
+
+   *Secondary file organization/auxiliary access structure*: sorting a based on
+   fields other than the ones used by primary file organization method.
+** 16.2: Secondary Storage Devices
+   - Magnetic disk, or hard disk drive = HDD
+     - Disks are circular, divided into sectors
+     - Many disks can be arranged into a disk stack
+     - Track: one circle of small width of the disk
+     - Cylinder: the same track across the whole disk stack
+     - Sector: arc of track. May be more sectors on outer tracks to accomodate
+       greater radius and maintain density of recording
+     - Disk formatting makes equal-sized disk blocks / pages
+     - Hardware Address of Block: cylinder number, track number (which disk of
+       the stack?), and block number (where in track?)
+     - LBA = logical block address, from 0 to n is mapped by the disk drive
+       controller.
+     - Buffer held in main memory for reading and writing from disk.
+   - Disk controller: controls disk drive and lets it talk to computer.
+     - SATA = serial AT attachment; commonly used interface.
+   - Seek time: time to move r/w head to right track
+   - Rotational delay: time for disk to move to right position
+   - Block transfer time: time to copy data from disk to buffer
+   - Organization tips:
+     - Place data on contiguous tracks to decrease seek time
+     - Buffer data
+     - Readahead for sequential reads
+     - Schedule IO requests to minimize r/w head movement
+     - Log writes to single disk
+     - Use SSDs
+   - Magnetic tapes
+     - Sequential access; must read 0-(n-1) before reading nth
+     - Generally used for backup
+** 16.3: Buffering of Blocks
+   - If many blocks need to be transferred to main memory and all block
+     addresses are known, we can have multiple buffers and interleave access to
+     the blocks.
+     - Disk IO can happen at the same time as computation due to a separate IO
+       processor even if there's only one CPU.
+   - *Buffer manager*: part of the DBMS, decides what buffer to use and what
+     pages to evict for new blocks
+     - Sees main mem as a buffer pool, the size of which is a parameter for the
+       DBAs.
+     - Can either directly control memory or defer to the OS
+     - Page stats that are tracked:
+       - Pin-count = number of times the page has been accessed/number of
+         current users. Pinned blocks shouldn't be written to disk.
+       - Dirty bit = set to 1 if block is updated
+     - Want to ensure we don't exceed main memory, otherwise we start swapping
+       to disk (thrashing)
+     - When page is asked for:
+       - If it's in memory already, increment pin count
+       - If it's not, evict a page (writing to disk if it's dirty) according to
+         some strategy, then grab the wanted page and increment pin count
+       - Return the address of the new page
+*** Buffer replacement strategies
+    - LRU: evict the page that hasn't been accessed the longest.
+    - Clock: buffers are in a circle with a clock flag set to 0. Set clock flag
+      to 1 when read in to memory or on access. When a page must be evicted,
+      clock forward until hitting a 0, settings all 1s to 0s as the clock passes
+      by.
+    - FIFO: evict the page that has been there the longest. Less complicated,
+      but can cause problems if we want a page to be there for a long time.
+** 16.4: Placing Records on Disk
+   - Records are just like normal programming records, such as C structs.
+   - BLOB: Binary Large Objects = large, unstructured data like images, videos,
+     free text.
+     - When used, actual object stored separately, with a pointer given to the
+       record.
+*** Files, Fixed & Variable Length Records
+    - File = sequence of records, often of the same type.
+      - If all records are same size, then file is made of fixed-length records
+      - Else, variable-length records
+        - Variable length records can happen because of variable length fields,
+          optional fields, or mixed record types in the file.
+        - Delineate fields by separator chars or by having the length of the
+          field before the field itself.
+
+* 17 (Not 17.4, 17.5)

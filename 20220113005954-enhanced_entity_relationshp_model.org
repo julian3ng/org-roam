@@ -3,56 +3,84 @@
 :END:
 #+title: Enhanced Entity Relationshp Model
 * Enhanced Entity Relationship Model
-  This is one type of data model, which is used to map out the requirements for
-  more complicated database schemas. The data structures are diagrams that
-  denote entity types, the properties of entity types, and relations between
-  these types. The EER model is good for representing classification (entities
-  are separated into different types) and generalization (supertypes and
-  subtypes exist), but not aggregation (multiple entities can't really be part
-  of a greater object). Furthermore, because queries, being lists of properties,
-  can't be represented in the EER, the query language for EER isn't closed,
-  ensuring that this model isn't actually used for much beyond design.
+  The EER is an abstract data model that extends the normal entity relationship
+  model to have inheritance hierarchies. Eventually, the user will have to map
+  this representation into actual relations in an [[id:0cd61009-5673-4cd2-9fb7-1a435af3bdba][EER Relational Mapping]]
 
-  - Rectangles represent an *entity type*.
-    - A user
-    - A book
-  - Ovals represent a *single-valued property* and are attached to entities. If
-    doubled, it represents a *tuple-valued property*. Properties can themselves
-    have properties; in this case, the parent is called a *composite property*.
-    - Age of user
-    - Title of book
-  - Ovals with underlined names are *identifying properties*. A given instance
-    of such a proprty can only have one entity attached to it.
-  - Diamonds represent *relations* between entity types. The number above the
-    connecting lines represents if the relation is 1-1, 1-many, or many-many.
-    Unless otherwise specified by a bold line, the 1-whatever relations are
-    partial functions. A bold line on a 1-many relation indicates that it is a
-    total function on the many.
-  - Diamonds can be connected to more than two entity types, representing an
-    n-ary relationship.
-    - [ ] These are kind of weird. An example: /student groups/ are scheduled to
-      be in different /classes/ in particular /classrooms/ at given
-      times. Sometimes you can factor these into several binary relations, but
-      often it's impossible to do so.
-  - A doubled diamond represents an *identifying relationship* for a *weak
-    entity*, represented by a doubled rectangle. A weak entity cannot exist
-    without the entity with which it shares an identifying relationship, and the
-    properties of that entity, along with its own properties, uniquely identify
-    it.
-    - A dashed underlined title for a weak entity's property indicates a
-      *partial identifier*, which, together with the other entity's properties,
-      identifies the weak entity.
-  - A *recursive relationship* is a relation between the same entity. In this
-    case, we have to label and direct the relation.
-  - *Supertypes* and *subtypes* are represented by entity types connected by a small
-    circled 'o' or 'd' joined with arrows to the types. An 'o' means that the
-    subtypes could both occur on the same entity, while a 'd' means the
-    opposite.
-  - A *union entity type* is represented by a 'u' connected to the types. In
-    this case, the subtype can only be one of the supertypes and have the
-    chosen's properties.
-  - *Properties on relations* can be represented in two ways, depending on the
-    relation type:
-    - 1-N: the property goes on the N end
-    - M-N: we make a relation type such that we have two new relations 1-M and
-      N-1, and attach the property to the relation type.
+  
+** Specialization and Generalization  
+   The Enhanced ER Model adds *type inheritance* to the normal ER model.
+ 
+   A *subclass* of a class represents entities that have attributes of a more
+   specific version of some class of entities. For example, bicycles and cars are
+   two different subclasses of the class of vehicles.
+ 
+   Subclass entities *inherit* all the attributes of their *superclass* (or
+   superclasses).
+ 
+   - *Specialization* is the process of defining subclass types for an entity type.
+   - *Specific/Local Attributes* are the attributes of a subclass
+   - A *Specific Relationship Type* are relations of a subclass to any other
+     entity type.
+   - *Generalization* is the opposite of specialization -- we define an
+     abstraction over entity types with something in common.
+   - A *Predicate-Defined Subclass* is a subclass containing only entities for
+     which some predicate is satisfied.
+   - An *Attribute-Defined Subclass* is a predicate-defined subclass where the
+     predicate is =attr = value=.
+   - A *User-Defined Subclass* is a subclass where members are determined by the
+     user, rather than automatically.
+ 
+   Subclasses are denoted with lines to the superclass with the $\subset$ symbol
+   pointing in the direction of the superclass. These lines could instead point
+   to a circle with either a =d= or an =o=, denoting a *disjoint constraint* and
+   *overlap* respectively.
+ 
+   - *Disjoint Constraint* means that entities of the superclass can be at most
+     /one/ of the subclasses.
+   - *Overlap* means that there is no constraint on the number of subclasses an
+     entity can be.
+   - *Completeness Constraints* determine whether or not superclass entities must
+     be in subclasses as well.
+     - *Total Specialization* implies that all superclass entities must be part
+       of a subclass. This is denoted by double lines from the superclass to the
+       circle.
+     - *Partial Specialization* allows entities to be in a superclass without
+       being part of a subclass.
+ 
+   A *specialization hierarchy* is a tree of types, while a *specialization
+   lattice* allows multiple inheritance.
+ 
+   - *Union Types/Catagories* are a subclass of a union of types. The subclass
+     connects to a circumscribed "u", which in turn connects to the
+     superclasses. The subclass is a member of /exactly one/ of the superclasses.
+     Like a specialization, such a type can be *total*, meaning all members of
+     the superclasses must be members of the subclass, or *partial*, meaning
+     there can be superclass members not part of the subclass.
+    
+** Set Theory of the EER Model
+   Let $C/S$ denote that $S$ is a subclass of $C$.
+
+   $Z = \{S_1, S_2, \ldots, S_n\}$ is a specialization if $G/S_i \forall i$
+   Then, $G$ is known as the generalized entity type/superclass/generalization
+   of all the $S_i$.
+
+   If $Z$ is total, then $\cup_{i = 1}^{n} S_i = G$
+
+   If $Z$ is disjoint, then $S_i \cap_{i\neq{j}} S_j = \emptyset$
+
+   $S$ is predicate-defined if predicate $p$ on the attributes of $C$ specifies
+   membership in $S$: $S = C[p]$. Otherwise, $S$ is user-defined.
+
+   $Z$ is attribute-defined if the predicate is $A=c_i$ and it specifies
+   membership for each $S_i \in Z$
+   - $A$ being an attribute of $G$
+   - $c_i$ being constant in the domain of $A$
+   - If $c_i \neq c_j$ for $i \neq j$, then $Z$ is disjoint.
+
+   Category $T$ is the subset of the union of the $n$ defining superclasses,
+   possibly predicated upon: $T \subseteq (D_1 \cup D_2 \cup \dotsc \cup D_n)$
+   or $T \subseteq (D_1[p_1] \cup D_2[p_2] \cup \dotsc \cup D_n[p_n])$
+
+   
+   

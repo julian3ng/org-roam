@@ -1,0 +1,59 @@
+:PROPERTIES:
+:ID:       9573a55e-3dc9-4653-9e9b-bffb6b6b5e15
+:END:
+#+title: Block Cipher Modes of Operation
+* Modes of Operation
+  A mode of operation takes a block cipher, which can encrypt and decrypt a
+  single block, and gives a way to encrypt and decrypt longer messages.
+
+  Notation: $M[i]$ denotes block $i$ of the message, and $C[i]$ denotes block
+  $i$ of the ciphertext.
+  
+** Electronic Code Book (ECB)
+   $C[i] = E_K(M[i])$
+
+   - Not at all secure. The same block will encode to the same block
+     later. This motivates other modes of operation.
+
+** Cipher Block Chaining (CBC)
+   - With random IV (initial vector):
+     - Encryption: \(IV \xleftarrow{\$} \{0, 1\}^n\) (treat $IV$ as $C[0]$)
+
+       $C[i] \gets E_K(M[i] \oplus C[i-1])$
+
+     - Decryption:
+
+       $M[i] = E^{-1}_K(C[i]) \oplus C[i-1]$
+
+   - Stateful CBC with counter IV:
+     - Instead of initializing $IV$ randomly, start it at $0^n$ and increment
+       it for every message.
+
+** Randomized Counter Mode (CTR$)
+   - Let $F: \{0, 1\}^k \times \{0, 1\}^l \rightarrow \{0, 1\}^l$ be a function
+     family with no particular properties.
+   - \(CTR\$ = (\{0, 1\}^k, \mathcal{E}, \mathcal{D})\)
+   - Encryption:
+
+     \(R \xleftarrow{\$} \{0, 1\}^l\)
+
+     $C[i] \gets F_K(R+i) \oplus M[i]$
+   - Decryption:
+
+     $M[i] \gets F_K(R+i) \oplus C[i]$
+
+   - Note that we don't care about the inverse of $F$ because we always xor
+     after applying $F$ to the random state.
+
+   - Similarly to Stateful CBC, we can have Stateful Counter Mode (CTRC) by
+     setting $R = 0$ and just continuing with the current counter after every
+     message.
+
+** Table of Security
+   | Mode | IND-CPA? | IND-CCA? |
+   |------+----------+----------|
+   | ECB  | No       | No       |
+   | CBCC | No       | No       |
+   | CBC$ | Yes      | No       |
+   | CTRC | Yes      | No       |
+   | CTR$ | Yes      | No       |

@@ -1,0 +1,60 @@
+:PROPERTIES:
+:ID:       3a600e70-d438-451b-9071-b72c0cfd6355
+:END:
+#+title: Relational Calculus
+* Relational Calculus
+  Relational calculus, in contrast to relational algebra, describes the result
+  in terms of set theory instead of describing how to create the result.
+
+  Calculus expressions look like this: $\{t | P(t)\}$ where $P$ is a predicate.
+
+  *Predicataes* are described as:
+  - Atoms: $t \in R$ or $R(t)$ (range expression), $r.A \theta r.B$ (attribute
+    comparison), $r.A \theta c$ (attribute comparison to constant)
+  - Given predicates $P_1$ and $P_2$:
+    - $(P_1)$
+    - not $(P_1)$
+    - $P_1$ or $P_2$
+    - $P_1$ and $P_2$
+    - $P_1 \implies P_2$
+  - If $P(t)$ is a predicate with free variable $t$ and $R$ is a relation:
+    - $\exists(t \in R)(P(t))$ is a predicate
+    - $\forall(t \in R)(P(t))$ is a predicate
+
+
+  When evaluating a calculus expression:
+  - Free variables can only exist to the LEFT of the bar.
+  - When the conditions on the RIGHT of the bar are satisfied, the binding on
+    the left is evaluated.
+  
+** Selection
+  $\{r | P(r)\}$: select based on some criteria.
+** Projection
+  $\{r.A, r.B |P(r)\}$: select certain fields of each tuple.
+** Union, Intersection, Set Difference
+  $\{s.City | \exists(r \in RegularUser)(s.City = r.CurrentCity) \land \exists(t
+  \in RegularUser)(s.City = t.Hometown)\}$
+  All cities that are both a current city and a hometown to any user.
+
+  The same works for intersection and set difference.
+** Cartesian Product
+  $\{r.s |r \in RegularUser, s \in UserInterests\}$
+
+  The set of all (r, s) pairs where r is a regular user and s is a user
+  interest.
+  
+** Joins
+*** Natural Join
+   $\{t.Email, t.Year, t.Sex, t.Event | \exists (r \in RegularUser), \exists(s
+   \in Events)\;.\; r.Year = s.Year \land t.Email = r.Email \land t.Year =
+   r.Year \land t.Sex = r.Sex \land t.Event = s.Event\}$
+
+   The join condition is $r.Year = s.Year$ - the fields of the same name must be
+   equal for every output tuple.
+
+   The rest of the condition is for the binding of the output tuple $t$.
+*** Division
+   $R \div S = \{a | \forall (b \in S)((a, b) \in R)\}$
+
+   Get all the $a$'s that have all the $b$'s in $S$.
+

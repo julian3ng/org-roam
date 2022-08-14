@@ -1,0 +1,50 @@
+:PROPERTIES:
+:ID:       8235d695-aae6-4802-b26e-dab666c1685e
+:END:
+#+title: Attack Analysis
+* Internet Scale Threat Analysis
+  Internet wide security scanning: why?
+  - Expose new vulns
+  - Track adoption of defenses
+  - Probe entire addr space with existing tools is slow
+* Zmap
+  - can scan entire ipv4 space every day
+  - 45 minutes to scan 98% of internet at 97% of network speed
+
+
+  - Arch
+    - No per-connection state
+    - components async
+    - no blocking except for network
+    - always send n probes per host instead of trying to retransmist to individuals
+    - scan targets that are widely dispersed as fast as possible instead of
+      avoiding floods by waiting
+    - optimize network stack instead of using off the shelf
+* Probes
+  - Probe hosts according to random prime group
+  - Take random permutation of address space and iterate through it according to group
+* Statelessness
+  - How? Stick info in mutable packet fields that will have effects on the response
+  - ex: hash the target and stick it in appropriate fields like the initial seq
+    number
+  - Then, the response will have hash + 1, which we can easily decode
+* Zmap is better than nmap
+  - 1300x faster than aggressive nmap configuration
+  - 2 probes to cover entire internet
+  - finds more hosts bc zmap doesn't time out hosts on account of statelessness
+* Cryptography
+  - Don't share keys!!!
+  - This happens because of default keys and such
+  - Not enough entropy is also bad
+    - public key N = p * q
+    - factoring N into p * q is bad
+    - If we have insufficient entropy, then we could have
+    - N1 = p * q1, N2 = p * q2
+    - Then, p = GCD(N1, N2) which is trivial to compute, then we've broken the
+      keys.
+** Embedded systems might be generating broken keys
+   - Right after boot there's a period where /dev/urandom is predictable 
+* CAs
+  - We trust a lot more than we should
+  - Lots of CAs give out certs willy nilly
+  - Certs are signed with outdated algorithms

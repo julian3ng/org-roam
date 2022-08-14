@@ -1,0 +1,213 @@
+% Created 2022-04-30 Sat 17:49
+% Intended LaTeX compiler: pdflatex
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\author{Julian Eng}
+\date{\today}
+\title{}
+\hypersetup{
+ pdfauthor={Julian Eng},
+ pdftitle={},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 28.1 (Org mode 9.5.2)}, 
+ pdflang={English}}
+\begin{document}
+
+\tableofcontents
+
+\section{Important things to remember}
+\label{sec:orgaa226f5}
+\subsection{What is a key?}
+\label{sec:org31faaa5}
+A key is the \emph{minimum} set of attributes that \emph{all} other attributes depend
+on.
+
+IF WE REMOVE AN ATTRIBUTE FROM THE KEY, THEN WE LOSE SOME ATTRIBUTE IN THE
+DEPENDENCY.
+
+Ex: we have \(A \to B, C, D; \quad B \to E;\quad F \to G;\quad A, F \to H\)
+\begin{itemize}
+\item \(A, F\) is the key. If we removed \(F\), then we would lose \(G\) being
+dependent on \(F\), and if we removed \(A\), we'd lose everything else.
+\end{itemize}
+
+\subsection{Superkeys}
+\label{sec:org69e2255}
+\begin{itemize}
+\item If you apply the inference rules on them, we should get all the attributes
+of the relation, because there shouldn't be any attributes that don't
+eventually depend on a superkey.
+\end{itemize}
+
+\section{Decomposition}
+\label{sec:org93773c0}
+\begin{itemize}
+\item Important things we want:
+\begin{itemize}
+\item Attribute Preservation
+\item Dependency Preservation
+\item Lossless (nonadditive) Join Property
+\end{itemize}
+\end{itemize}
+
+\subsection{Functional Dependency}
+\label{sec:org541d419}
+\begin{itemize}
+\item \(Y\) is functionally dependent on \(X\) in \(R\) if for every \(x \in R.X\), there
+is exactly one \(y \in R.Y\).
+\end{itemize}
+
+\subsection{Full Functional Dependency}
+\label{sec:org0fd9761}
+\begin{itemize}
+\item \(Y\) is FULLY functionally dependent on \(X\) in \(R\) if it is functionally
+dependent on \(X\) and NOT functionally dependent on any proper subset of
+\(X\).
+\end{itemize}
+
+\subsection{Transitive Dependency}
+\label{sec:orge979657}
+\begin{itemize}
+\item \(Y\) is transitively dependent on \(X\) in \(R\) if there exists set of
+attributes \(Z\) that is a) NOT A CANDIDATE KEY and b) NOT A SUBSET OF
+ANY KEY OF \(R\), such that \(X \to Z\) and \(Z \to Y\) hold.
+\end{itemize}
+
+
+\subsection{Normal Form Rules:}
+\label{sec:orgcc52147}
+\subsubsection{1NF}
+\label{sec:orgbb4fcfd}
+All values are atomic (no sets, tuples, or relations in relations)
+\subsubsection{2NF}
+\label{sec:org5a4b8d4}
+Relation is in 1NF AND every nonkey attribute is fully functionally
+dependent on the key
+\subsubsection{3NF}
+\label{sec:orgde76511}
+Relation is in 2NF and every nonkey attribute is nontransitively dependent
+on the key
+\subsubsection{BCNF}
+\label{sec:orga46adb6}
+Every determinant is a candidate key
+
+Practice exam vs. lecture difference:
+
+Lecture has \(Email \to CurrentCity, Salary;\; CurrentCity \to Salary\) as
+2NF.
+This makes sense because \(Salary\), while dependent on \(Email\) by itself,
+also depends on it through \(CurrentCity\), which is a nonkey.
+
+
+Practice exam has the equivalent of \(Email \to CurrentCity, Salary;\; Email,
+    CurrentCity \to Salary\) as BCNF.
+This makes sense because \(Salary\) now depends on both \(Email, CurrentCity\)
+at once, but \(Email, CurrentCity\) is a candidate key, given that it
+determines \(Salary\), so this doesn't count as a transitive dependency.
+
+
+
+
+\subsection{Closure of Attributes w.r.t A Dependency Set}
+\label{sec:orgea6c8ea}
+\begin{itemize}
+\item This is all the attributes that depend on the given attributes, based on
+the dependency set.
+\end{itemize}
+
+\section{Important Memory Things}
+\label{sec:orgdd05e16}
+\begin{itemize}
+\item Blocking factor = number of records per block = \texttt{block size / record size}
+\item Copy time = \texttt{seek time + rotation delay + block copy time * numblocks}
+\item Files are bunches of blocks linked in a linked-list of pointers
+\item Unspanned = records don't get split across blocks
+\begin{itemize}
+\item When there's a choice, we go with unspanned
+\item If the object is too big for a block, then obviously we must span it
+\end{itemize}
+\item Bulk transfer: when finding a block, find blocks after it too to save on
+seek costs
+\end{itemize}
+
+\subsection{Heap}
+\label{sec:orga93fc13}
+\begin{itemize}
+\item No organization, records are just put into blocks in the order they are
+inserted.
+\item To find something, takes on average \(N/2\) time
+\end{itemize}
+
+\subsection{Sorted}
+\label{sec:org93a8244}
+\begin{itemize}
+\item Records are sorted by key
+\item Binary search: \(\log_2{N}\) cost
+\end{itemize}
+
+\subsection{Sorted w/ index}
+\label{sec:org94f446c}
+\begin{itemize}
+\item Records are sorted by key
+\item We build a (sparse) index; entries are keys of the FIRST record in a block
+\item Binary search: \(\log_2{N} + 1\) cost, where \(N\) is the number of index
+blocks.
+\begin{itemize}
+\item \(+ 1\) is for accessing the data block itself.
+\end{itemize}
+
+\item A DENSE index has all the keys for data, which will still live in fewer blocks.
+
+\item When considering index size and fanout, you must keep in mind the data type
+of the index, and the size of a block pointer. For example, if the data
+type is a \texttt{varchar28} and the block pointer is 4B, then each index entry
+costs 32B. If we're filling a block of size 4000B 80\% of the way, we have
+3200B to fill with index entries. 3200 / 32 = 100, so our fanout is 100.
+
+\begin{itemize}
+\item Fanout refers to the number of index entries per index block.
+\end{itemize}
+
+\item \texttt{number of data blocks / fanout = number of index blocks}
+
+\item Primary indices are good for point queries (single access) and range queries
+(facts about many records in sequence)
+
+\item Clustered index defines the order the table is laid out in
+\end{itemize}
+
+\subsection{Secondary Index}
+\label{sec:org8facf41}
+\begin{itemize}
+\item Values are not sorted on this field, so we need to grab all the values from
+the records, THEN sort them.
+\item If this isn't a key field, then we have to choose whether or not to keep
+multiple pointers to the block in question.
+\end{itemize}
+
+\subsection{Multilevel Index}
+\label{sec:org0c8e3a7}
+\begin{itemize}
+\item I herd you liek indexes
+\item Lookup is now \(\log_{fanout}{n} + 1\) where \(n\) is the number of index blocks
+\end{itemize}
+
+\subsection{Hashing}
+\label{sec:orgeea01fe}
+\begin{itemize}
+\item Each bucket can have a bunch of blocks, generally we'll assume that the
+hash function uniformly distributes blocks. After that it's just unit
+conversion.
+\end{itemize}
+\end{document}

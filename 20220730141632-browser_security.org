@@ -1,0 +1,159 @@
+:PROPERTIES:
+:ID:       815ee576-5396-470a-81b7-36c739b6b1ba
+:END:
+#+title: Browser Security
+* Web Security
+  - Goals:
+    - Site A cannot compromise sessions of Site B
+    - Web apps should be as secure as native apps
+* Threat models
+  - Web: Attacker sets up a malicious site but doesn't control the network.
+  - Network: Attacker controls the network.
+* Web attackers
+  - Get user to access compromised site, then do whatever
+* Network attacker
+  - DNS poisoning, evil router, wireless eavesdropping
+* Malware attacker
+  - Escapes browser isolation and spawns separately 
+* Browser Sources
+  - Content comes from many sources
+  - By default, remote scripts have limited OS access, no file access, limited
+    browser data, and limited content from other websites
+  - User can grant privileges to signed scripts
+
+* SAME ORIGIN POLICY (SOP)    
+  - SAME ORIGIN POLICY (SOP) for Document Object Model:
+    - Scripts can only read properties of documents and windows with the same
+      protocol, domain, and port.
+    - http://domain.com:8001/foo/bar has same origin as
+      http://domain.com:8001/baz/qux
+  - For cookies: [protocol], domain, path. 
+    
+* Frames
+  - Provide isolation and a way to load 3rd party content without breaking the
+    parent if it fails
+  - Frames have origin = protocol://host:port, and cannot access data from
+    different origins
+  - Frames have relationships
+    - canScript(A, B): can frame A run scripts that manipulate frame B's DOM
+      nontrivially?
+    - canNavigate(A, B): can frame A change frame B's content origin?
+  - Frames can look at cookies
+    - readCookie(A, S), writeCooki(A, S): can frame A read/write cookies from
+      site S?
+
+* Browsing Context
+  - Either:
+    - Frame with its DOM
+    - Web worker (thread), has no DOM
+
+  - Either way, they have an origin (protocol://host:port)
+  - Isolated by SOP
+  - Can talk to others with ~postMessage~
+  - Can make network requests with XMLHttpRequest (XHR) or tags
+    
+* HTTP Sandbox
+  - Sandbox: Iframe gets limited privileges, has unique origin, can't run JS,
+    can't submit forms, disables APIs, disables plugins, etc.
+
+  - Sandbox allow-X: iframe has unique origin and allows permission X back
+
+* Content Security Policy (CSP)
+  - Goal: Prevent XSS, limit damage if it happens
+
+
+  XSS bypasses SOP to deliver malicious code along with legitimate content
+
+  - How:
+    - Prohibit scripts in <script> tags, inline event handlers and js,
+    - Disable eval(), new Function(), other workarounds
+    - CSP Http header lets sites create whitelist allowing browser to
+      execute/render from whitelist of sources only
+
+
+  - CSP Lists can be specified by:
+    - Scheme (https, etc.)
+    - Hostname
+    - URL (https://example.com:443)
+      
+* Web Workers
+  - Same origin as frame that creates it, just no DOM
+  - Communicate via postMessage
+    
+* CORS
+  - Relaxes SOP, allowing js on a webpage to consume content from different
+    origin
+  - Website must whitelist all domains
+
+  - Scenario: user accesses stuff on domain =A= which wants to load stuff from
+    domain =B=.
+    - Browser sends =Origin: A= as a header with the request to domain =B=.
+
+    - =B= replies with =Access-Control-Allow-Origin: *= (or =: A=), allowing =A=
+      to access whatever resource was requested.
+
+* Cookie SOP
+  - Recall: [protocol]://domain/path is what matters
+  - login.site.com can access cookies for login.site.com and .site.com, but not
+    other sites or any TLD.
+  - Cookies are IDd by name, domain, path
+  - Browser should only see cookies for a given domain/path
+  - HttpOnly cookies can't be accessed by client-side scripts
+
+** Problems with Cookies
+   - Servers can't see cookie attributes like 'HttpOnly', 'secure', etc.
+   - If another site overwrites a cookie, the original site can't tell
+
+     - login.site.com sets K to foo
+     - evil.site.com sets K to evil
+     - course.site.com sees K = evil
+
+
+   - Protocol is optional - HTTPS cookies can get overwritten by HTTP ones
+   - Users can edit cookies
+
+
+   Solutions:
+   - Use cryptography - server has secret key which makes signature and sticks
+     it to cookie value, then we can tell if the value was changed. Faking
+     cookies is impossible because of secret.
+
+     - Avalanche effect: small change in input = large change in output
+
+* Sessions
+  - Sequence of requests from one browser to one or more sites
+  - Goal: user auths once, then requests have auth with it
+  - Using... session tokens!
+
+  - When not logged in, website sends user an anonymous token
+  - User sends same anon token on subsequent requests.
+
+  - Upon login, website sets logged-in session token
+  - User sends same token on subsequent requests
+
+
+  Can be a cookie, a URL param, a hidden form... but it's best to use all 3.
+
+** LOGOUT
+   - Important to do:
+     1) Delete SessionToken from client
+     2) Mark session as expired on the server
+
+** Session hijacking
+   - Attacker sniffs legit session ID and uses it as well.
+   - Possible if one doesn't follow good crypto practices and exposes secret key.
+   - Session tokens should be unpredictable for attacker
+
+
+   - Session could be over mixed HTTPS/HTTP allowing attacker to steal cookie
+
+   - XSS
+
+** Summary
+   - Cookies from clients are always suspicious, must ensure value with
+     cryptography.
+   - Session tokens should be split among multiple state mechanisms
+     - Cookies
+     - URL fields
+     - Hidden forms
+   - Logout must invalidate server session

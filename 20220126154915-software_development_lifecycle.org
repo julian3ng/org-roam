@@ -1,0 +1,24 @@
+:PROPERTIES:
+:ID:       0c1e74c3-6df6-4d56-8870-50289605f207
+:END:
+#+title: Software Development Lifecycle
+* SDLC
+  The software development lifecycle describes the methods a team uses to create
+  software. Agile and Waterfall are two different methodologies. Agile
+  emphasizes short feedback loops via sprints, while Waterfall tackles projects
+  in single-focus phases aimed at finishing one part of the process at a time.
+  
+** Waterfall
+   The phases of waterfall are:
+
+   1) Business process (re)design
+   2) Analysis
+   3) Specification
+   4) Design
+   5) Implementation
+   6) Testing
+   7) Operation
+   8) Maintenance
+
+   Steps 2-5 are handled differently in a database application, according to
+   CS6400 (see [[id:2a4f0d3f-a7c5-425b-aa96-430115595e67][Database Application Development]])

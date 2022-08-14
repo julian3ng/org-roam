@@ -1,0 +1,24 @@
+:PROPERTIES:
+:ID:       4d6153aa-f9d6-482c-acef-2335fd1e0341
+:END:
+#+title: DB Definition Languages
+* Languages
+  - *Data Definition Language (DDL)*: used to define the conceptual and sometimes,
+    the internal schemas.
+  - *Storage Definition Language (SDL)*: when not defined by the DDL, defines the
+    internal schema.
+  - *View Definition Language (VDL)*: defines the external schema.
+  - *Data Manipulation Language (DML)*: used to query and manipulate the
+    database's data. There are two types of DML:
+    1) High level / non-procedural: these languages describe complex database
+       operations without going into detail, meaning, "what data do we want."
+       SQL is such an example.
+    2) Low level / procedural: describes how to get data from the database; must
+       be embedded in some other *host language*.
+
+  Nowadays, SQL has the functionality for all of these languages.
+
+  When a DML is embedded in a host language, the DML is referred to as a *data
+  sublanguage*. Otherwise, the DML is known as a *query language*.
+  
+    

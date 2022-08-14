@@ -1,0 +1,263 @@
+* Notes for Cracking the Coding Interview, 6th Edition
+** I: The Interview Process
+   Skills that are tested during a coding interview:
+   1) Analytical Skills: did you need help? Was the solution well structured?
+   2) Coding Skills: were you able to convert your algo to code?
+   3) Technical Knowledge: did you demonstrate CS know-how?
+   4) Experience: Past experience useful?
+   5) Culture Fit / Communication Skills: do you fit in well with the company?
+
+   Important to note: the *company finds false negatives acceptable.*
+
+   *Basic data structure and algorithm knowledge is useful!*
+
+   Focus on the generalities of the problem before getting into the code and
+   details.
+** II: Behind the Scnees
+   BTS information about different companies' hiring practices.
+** III: Special Situations
+   - Experienced candidates can expect more questions about prior experience,
+     system design, and architecture.
+   - Testers will expect questions about... testing. Duh.
+   - Startups will put more weight toward the technologies they use, as well as
+     your prior experience.
+** IV: Before the Interview
+*** Get Experience
+    - Code more: project classes, internships, own projects
+    - Move work towards coding
+    - Code when free
+*** Resume
+    - Use "accomplished X by implementing Y, which lead to Z"
+    - List projects that you've committed to, not everything you've ever done
+    - List proficient languages and software that you're likely to use
+** V: *Behavioral Questions*
+   - Interview Prep Grid: For each project, note down Challenges,
+     Mistakes/Failures, Enjoyed, Leadership, Conflicts, and What You'd Do
+     Differently.
+   - Weaknesses: give an honest weakness and how you mitigate it on the job.
+   - Questions for the interviewer:
+     - Genuine questions:
+       - "What's the team like?"
+       - "What challenges do you face currently?"
+       - "Day-to-day?"
+     - Insightful questions about the company:
+       - "When using X technology, how do you get around problem Y?"
+       - "Why do you use X over Y?"
+     - Passion questions
+       - "I'm interested in X, are there opportunities to work with that here?"
+       - "Can you tell me how X works?"
+   - Technical Project: Know how this works inside and out. Make sure it has
+     some challenging components, you played a central role, andn you can talk
+     about it in technical depth.
+   - Responses to behavioral questions: give specifics, but don't dive into the
+     minutiae. Focus on yourself and not the team.
+     - Give STRUCTURED ANSWERS.
+       - Nugget: a summary of what the problem was
+       - S.A.R:
+         - Situation: summarize the setting of the response to the question?
+         - Action: how did you solve this problem? You want to demonstrate:
+           - Initiative/Leadership: show that you'll *do* something
+           - Empathy: you'll try to understand the problem
+           - Humility: you'll accept and relate your flaws and try to correct
+             them.
+           - Teamwork: you'll work with your team
+             
+         - Result: how did your Action resolve the Situation?
+
+   - "Tell Me About Yourself":
+     - Current Role (Headline)
+     - College
+     - Post College
+     - Current Role (Detail)
+     - Outside of Work
+     - Wrap up, relate to interviewing company
+   - Hobbies:
+     - Skip if fluff, add if unique, technical, or demonstrates a personality
+       trait. Rarely hurts to mention though.
+** VI: Big O
+*** Formal Definition:
+    Function $f$ is $O(g)$ if there exists some constants $c, k$ such that for
+    all $n \geq k$, $cg(n) \geq f(n) \geq 0$. $c, k$ are fixed for $f$ and not dependent on $n$.
+
+    - $O(g)$ means the upper bound is $g$
+    - $\Omega(g)$ means the lower bound is $g$
+    - $\Theta(g)$ means both bounds are $g$
+    - Don't confuse these with best/worst/expected case: big-O/Omega/Theta is
+      for the runtime bounds, the cases are for actual input scenarios.
+
+*** Tricks      
+    - Constants don't matter in big O.
+    - When looking at space complexity, look at variables and stack frames that
+      depend on input size.
+    - You can drop all but the largest term in big O.
+      - log N < N < N log N < N^x < 2^N < N! < N^N
+      
+*** Amortized Time
+    - Some worst case will happen occasionally, but other times it won't. We can
+      spread the worst case around the better cases.
+
+    - Ex. We double the capacity of an ArrayList every power of 2, but normally
+      take constant time to insert. The question to ask: how much time do N
+      insertions take? 1 + 2 + 4 + ... + N is roughly 2N. If N insertions takes
+      2N time, then 1 insertion takes 2 time, which is constant, O(1).
+      
+*** Log N
+    - Log N comes from recursing and halving the input each time.
+
+*** Recursive calls
+    - Depends on the recursive call
+      - Input size per call
+      - Number of recursive calls
+      - Work outside recursive calls
+
+    - Master Theorem
+
+      For $a \geq 1, b > 1$, and $f$ asymptotically positive:
+
+      $$T(n) = aT(\frac{n}{b}) + f(n)$$
+
+      Without the $f(n)$, we have a call tree of height $\log_{b}{n}$ with the $i^{th}$
+      layer having $a^i$ nodes. In the last layer, we have $a^{\log_{b}{n}}$
+      leaves, which is $n^{\log_{b}{a}}$ leaves, which is also the big O
+      complexity.
+
+      We have to handle the work outside the recursion in the form of $f(n)$
+      though.
+
+      1) $f$ does less work than the recursion: $f$ is $O(n^{\log_{b}{a -
+         \epsilon}})$ for $\epsilon > 0$.
+         Then $T(n) = \Theta(n^{\log_{b}{a}})$
+
+      2) $f$ does the same amount of work as the recursion: $f$ is
+         $\Theta(n^{\log_{b}{a}})$. Then $T(n) = \Theta(n^{\log_{b}{a}}\log{n})$
+
+      3) $f$ does more work than the recursion: $f$ is $\Omega(n^{\log_{b}{a +
+         \epsilon}})$ for $\epsilon > 0$ AND $af(\frac{n}{b}) \leq cf(n)$ for
+         some $c < 1$ for all sufficiently large $n$, then $T(n) = \Theta(f(n))$
+    
+** VII Technical Questions
+*** How to approach problems   
+    - Read through and try problems by writing them down on paper first.
+    - Test on paper, then try it in code.
+*** The Absolute Basics
+    | Data Structures      | Algorithms    | Concepts               |
+    |----------------------+---------------+------------------------|
+    | Linked Lists         | BFS           | Bit Manipulation       |
+    | Trees, Tries, Graphs | DFS           | Memory (Stack vs Heap) |
+    | Stacks & Queues      | Binary Search | Recursion              |
+    | Heaps                | Merge Sort    | DP                     |
+    | Vectors / ArrayLists | Quicksort     | Big O                  |
+    | Hash Tables          |               |                        |
+
+    Make sure you can use and implement them, and their time and space
+    complexities.
+*** Approaching a Problem
+    1) LISTEN TO THE DETAILS
+    2) Work an example on paper
+    3) Brute force solution
+    4) Optimize
+       - Unused information?
+       - Time/space tradeoff?
+       - BUD Optimization: bottlenecks, unnecessary work, duplicated work
+    5) Walk Through Code
+    6) Implement: factor out functions, refactor as necessary
+    7) Test:
+       - Walk through concepts
+       - Walk through unusual code (should be commented)
+       - Hot spots (arithmetic, null nodes)
+       - Small test cases
+       - Special cases and edge cases
+*** 4: Optimize and Solve Techniques
+**** 1) BUD (Bottlenecks, Unnecessary Work, Duplicated Work)
+        - B: For example, if the inner loop costing O(N) can be optimized to be
+          O(1), you can divide out a factor of N from the time complexity.
+        - U: Example) a^3 + b^3 = c^3 + d^3.
+          #+begin_src python
+            n = 1000
+            for a in range(n):
+                for b in range(n):
+                    for c in range(n):
+                        for d in range(n):
+                            if a**3 + b**3 == c**3 + d**3:
+                                print(f"({a}, {b}), ({c},{d})")
+          #+end_src
+ 
+          This duplicates work - once we've specified =a=, =b=, and =c=, =d= is
+          constrained to one number.
+ 
+          #+begin_src python
+            n = 1000
+            for a in range(n):
+                for b in range(n):
+                    for c in range(n):
+                        d = (a**3 + b**3 - c**3)**(1/3)
+                        if (a**3 + b**3 == c**3 + d**3):
+                            print(f"({a}, {b}), ({c}, {(a**3 + b**3 - c**3)**(1/3)})")
+          #+end_src
+ 
+        - D: Same example: we don't need to keep computing (c, d) pairs for each
+          (a, b) pair since they'll always be the same. Stick them in a hash
+          table instead:
+          #+begin_src python
+            from collections import defaultdict
+            n = 1000
+            cube_sums = defaultdict([])
+            for c in range(n):
+                for d in range(n):
+                    cube_sums[c**3 + d**3].append((c, d))
+ 
+            for a in range(n):
+                for b in range(n):
+                    s = a**3 + b**3
+                    for (c, d) in cube_sums.values():
+                        print(f"({a}, {b}), ({c},{d})")
+          #+end_src
+ 
+          And we don't need to go through all the =a= and =b= either since all
+          the matching pairs have the same cube_sum:
+ 
+          #+begin_src python
+            from collections import defaultdict
+            n = 1000
+            cube_sums = defaultdict([])
+ 
+            for c in range(n):
+                for d in range(n):
+                    cube_sums[c**3 + d**3].append((c, d))
+ 
+            for cube_sum, pairs in cube_sums.items():
+                for p1 in pairs:
+                    for p2 in pairs:
+                        print(f"{p1}, {p2}")
+          #+end_src
+**** 2) DIY
+     Work an example through your own brainpower and see what optimizations you
+     make.
+**** 3) Simplify and Generalized
+     Try a simplified problem first with some added or relaxed constraints, then
+     see what has to change for the true problem.
+**** 4) Build case and build
+     Start with your base case, then see how to build the rest of the
+     cases. Basically, the inductive approach.
+**** 5) Data Structure Brainstorm
+     Think about what data structures could work, or just brute force all of
+     them in your head. You might come across one that makes the problem trivial.
+**** 6) Best Conceivable Runtime
+     Find the best runtime possible given the data structures (for instance, if
+     you have to find the minimum of an unsorted list, the best you could
+     conceivably do is O(n)), and try to achieve that, keeping in mind what
+     operations allow that.
+*** Desirable Qualities in Code
+    1) Correctness: do what you want it to do
+    2) Efficiency: do it fast with a low memory footprint
+    3) Simple: do it in as few lines of code as possible
+    4) Readable: do it so everyone can understand it
+    5) Maintainable: do it so it can change with requirements
+*** Tips:
+    1) Use data structures! Make your own for readability
+    2) Reuse code when you see possibilities for abstraction
+    3) Separate code into functions where appropriate
+    4) Don't hard code parameters if possible
+    5) Check errors
+** TODO VIII The Offer and Beyond
+

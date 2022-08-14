@@ -1,0 +1,32 @@
+:PROPERTIES:
+:ID:       33a4283f-414d-410d-b1a5-24ae209916fe
+:END:
+#+title: Database Schema
+* Database Schema
+  A database *schema*, also known as the database's *intension*, describes the
+  contents of the database via the types of data it expects. Generally, a
+  database schema is expected to stay stable throughout the database's lifetime,
+  changing little. Changes that do occur are refereed to as *schema evolution*.
+
+  When data is added to the database, compatibility with the database schema
+  must be ensured.
+
+  Schemas are defined by various [[id:4d6153aa-f9d6-482c-acef-2335fd1e0341][DB Definition Languages]]
+
+* Three-Schema Architecture
+  The three-schema architecture separates the physical storage of the data from
+  the details of the end application. The three schemas are:
+
+  1) *External Schema*: only has data specific to a certain application,
+     possibly with computed data.
+  2) *Conceptual Schema*: has all of the data organized according to the
+     representational data model, which shows how the data is logically laid
+     out, but not the physical details of that layout.
+  3) *Internal Schema*: has the physical details of data storage, including
+     structures such as indices.
+
+  There are mappings between each level that the *query transformer* uses to
+  transform actions that happen within the external schema into operations at
+  the operating system level to manipulate data.
+
+  These schemas usually aren't completely separated.

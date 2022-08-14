@@ -1,0 +1,218 @@
+:PROPERTIES:
+:ID:       866e763c-17c2-4eec-9653-59002171068c
+:END:
+#+title: Relational Algebra
+#+LATEX_HEADER: \usepackage{amssymb}
+
+* Relational Algebra
+  Relational algebra is a way of describing the operations necessary to obtain a
+  result. Relational algebra operations all take relations and output other
+  relations.
+** Relations
+   One can think of relations as database tables. Mathematically, they are
+   subsets of the Cartesian product of all the column domains.
+
+   Two relations are *type-compatible* if their columns have the same domain and
+   they have the same number of columns.
+** Selection: $\sigma_{expr}(R)$
+   This corresponds to the well-known "where" expression in SQL. The output of
+   the example is all rows of $R$ for which $expr$ is true.
+
+   The expressions can be:
+   1) Comparison between two attributes
+   2) Comparison between one attribute and one constant
+   3) Expression1 OR expression2
+   4) Expression1 AND expression2
+   5) (Expression)
+   6) Not expression
+
+   The *selectivity* of a selection is the fraction of rows selected from the
+   whole relation.
+** Projection: $\pi_{A_1, A_2, \ldots, A_n}(R)$
+   This operation returns a new relation with only the columns $A_1, A_2,
+   \ldots, A_n$ of $R$.
+
+   When applied to non-key attributes only, there may be duplicate rows. In this
+   case, duplicates are removed from the output.
+** Rename: $\rho_{Out[A_{out} A_{in}, B_{out} B_{in}, ldots]}(R)$
+   This operation returns the relation $R$ renamed to $Out$ with columns
+   $A_{in}$ and $B_{in}$ renamed to $A_{out}$ and $B_{out}$.
+** Union: $\cup$, Intersection: $\cap$, Set difference: $\setminus$
+   These operations operate rowwise on type-compatible relations.
+
+   For instance: "Find all cities that are the current city or hometown of a
+   RegularUser" would be obtained thusly:
+
+   $\pi_{CurrentCity}(RegularUser) \cup \pi_{Hometown}(RegularUser)$
+
+   - Union returns all rows in either relation.
+   - Intersection returns all rows in both relations.
+   - Set difference returns all rows in the first relation but not the second.
+** Cartesian Product: $R_1 \times R_2$
+   This operation joins all rows of its left argument with all rows of its
+   right argument.
+** Join: $R_1 \Join_{A} R_2$
+   This operation is logically a Cartesian product followed by a select - the
+   rows that show up in the output are those of the product that satisfy $A$.
+
+   $A$ can be any expression in general (this is known as a *theta join*, but
+   specifying the operations gives different named joins.
+
+   The *join selectivity* of a join is the fraction of rows of the Cartesian
+   product selected.
+*** Natural Join: $R_1 *_{(A_1, A_2, \ldots)} R_2$
+    The result of a natural join is all tuples of $R_1 \times R_2$ that have
+    $A_1$ of $R_1$ equal to $A_1$ of $R_2$ (tuples with same values for same
+    attributes).
+
+    If there are no attributes of the same name, then by default it is the
+    Cartesian product.
+    
+*** Left Outer join: $R_1 =\!\!\Join_A R_2$ (symbol has no space)
+    All rows of $R_1$ are included in the output with their match in $R_2$ based
+    on $A$. If there is no such match, it is instead padded in NULLs.
+
+    $R_1$
+    |---+---|
+    | A | B |
+    |---+---|
+    | x | 1 |
+    | y | 2 |
+    | z | 3 |
+    |---+---|
+
+    $R_2$
+    |---+-----|
+    | B | C   |
+    |---+-----|
+    | 2 | foo |
+    | 3 | bar |
+    | 4 | baz |
+    |---+-----|
+
+    $R_1 =\!\!\Join_B R_2$
+    |---+---+------|
+    | A | B | C    |
+    |---+---+------|
+    | x | 1 | NULL |
+    | y | 2 | foo  |
+    | z | 3 | bar  |
+    |---+---+------|
+    
+
+    A similar right outer join operation exists with the NULLs placed on the
+    other side.
+
+    A full outer join includes all rows of both relations; whenever there is a
+    counterpart in the other relation, they are paired, otherwise a NULL is
+    placed, no matter which side is missing.
+
+    Thus, $R_1 \Join_B R_2$:
+
+    |------+---+------|
+    | A    | B | C    |
+    |------+---+------|
+    | x    | 1 | NULL |
+    | y    | 2 | foo  |
+    | z    | 3 | bar  |
+    | NULL | 4 | baz  |
+    |------+---+------|
+*** Divide By: $R_1 \div R_2 = R_3$
+    Intuitively, this is the opposite of a Cartesian product, extended to work
+    with $R_1$ not being the result of a Cartesian product.
+
+    For example:
+
+    $R_3$
+    |---+---|
+    | A | B |
+    |---+---|
+    | x | 1 |
+    | y | 2 |
+    |---+---|
+
+    $R_2$
+    |---+
+    | C |
+    |---+
+    | a |
+    | b |
+    |---+
+
+    Then $R_1 = R_2 \times R_3$
+    |---+---+---|
+    | A | B | C |
+    |---+---+---|
+    | x | 1 | a |
+    | x | 1 | b |
+    | y | 2 | a |
+    | y | 2 | b |
+    |---+---+---|
+
+    
+    The division operator $R_1 \div R_2$ will return $R_3$ by factoring out the
+    contents of $R_2$.
+
+    $R_1 \div R_2$ is the projection of $R_1$ that, when multiplied by $R_2$,
+    results in $R_1$.
+    
+    How does this extend to a relation that isn't the result of a Cartesian
+    product?
+
+    $R \div S = \pi_{A - B}(R) \setminus \pi_{A - B}((\pi_{A - B}(R) \times S) \setminus
+    R)$
+
+    1) $(\pi_{A - B}(R) \times S)$ represents all possible combinations of non-S
+       attribute values and S attribute values.
+    2) $\setminus R$ takes off those tuples that exist, leaving 
+
+    
+    $R$
+    |---+---|
+    | A | B |
+    |---+---|
+    | x | 1 |
+    | x | 2 |
+    | y | 2 |
+    | y | 3 |
+    | z | 1 |
+    | z | 2 |
+    | z | 3 |
+    |---+---|
+
+    $S$
+    |---|
+    | B |
+    |---|
+    | 1 |
+    | 2 |
+    |---|
+
+    $\pi_{A-B}(R) \times S$ (product result of S and the non-S parts of R)
+    |---+---|
+    | A | B |
+    |---+---|
+    | x | 1 |
+    | x | 2 |
+    | y | 1 |
+    | y | 2 |
+    | z | 1 |
+    | z | 2 |
+    |---+---|
+
+    $(\pi_{A-B}(R) \times S) \setminus R$ (anything not in the product)
+    |---+---|
+    | A | B |
+    |---+---|
+    | y | 1 |
+    |---+---|
+
+
+    $\pi_{A-B}(R) \setminus \pi_{A-B}((\pi_{A-B}(R) \times S) \setminus R)$
+    (remove anything not in the product, take the non-S attributes)
+    |---|
+    | A |
+    |---|
+    | x |
+    | z |
+    |---|

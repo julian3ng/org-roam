@@ -1,0 +1,142 @@
+:PROPERTIES:
+:ID:       5d76316f-55f0-4dbf-b755-1e188b3a677d
+:END:
+#+title: SQL
+* SQL
+** SELECT
+   =SELECT <fields> FROM <table> WHERE <conditions>=
+** INSERT
+   =INSERT INTO <table> (field1, field2, field3) VALUES (v1, v2, v3)=
+** UPDATE
+   =UPDATE <table> SET f1=v1,f2=v2,f3=v3 WHERE <condition>=
+** Generally...
+   #+begin_src sql
+     SELECT column1, column2, ..., columnn
+     FROM table1, table2, ..., tablem
+     WHERE condition;
+   #+end_src
+
+   Joining tables by commas will give you a cartesian product.
+
+   The general form projects the given columns on the rows indicated by the
+   condition from the cartesian product of the given tables.
+** DISTINCT
+   =SELECT DISTINCT <columns> FROM <table> WHERE <condition>=
+
+   The =DISTINCT= keyword will deduplicate the result of the query run without
+   the =DISTINCT=.
+** NATURAL JOIN
+   #+begin_src sql
+     SELECT a.field1, b.field1, a.field2
+     FROM A a, B b
+     WHERE a.field2 = b.field2;
+   #+end_src
+
+   The =FROM= clause creates a catesian product and the =WHERE= clause creates
+   the join condition. 
+
+   #+begin_src sql
+     SELECT a.field1, b.field1, a.field2
+     FROM A AS a NATURAL JOIN B AS b;
+   #+end_src
+
+   Same as above. If there are no matching join fields, this is the same as
+   cartesian product.
+** LEFT OUTER JOIN
+   #+begin_src sql
+     SELECT A.field1, B.field1, B.field2
+     FROM A LEFT OUTER JOIN B;
+   #+end_src
+
+   This will join A to B on their matching column; if the column in A doesn't
+   have a match in B, B's columns in the output will be NULL.
+** String Matching
+   =SELECT <columns> FROM <table> WHERE field LIKE 'Foo%';=
+
+   - =%= matches any string (regex =.*=)
+   - =_= matches any one character (regex =.=)
+** Sorting
+   =SELECT <columns> FROM <table> ORDER BY field ASC;=
+
+   (can replace =ASC= with =DESC= for reverse order)
+** UNION
+   #+begin_src sql
+     <SELECT QUERY>  UNION <SELECT QUERY>
+   #+end_src
+
+   - All rows of the first query set union with all rows of the second query
+   - DUPLICATES ARE NOT PRESERVED
+   - If you want to preserve duplicates, use =UNION ALL=
+** INTERSECT
+   - Same as =UNION= but it's an intersection.
+   - =INTERSECT ALL= behaves the same way. (What happens if there's two in the
+     first query but only one in the second query?)
+** EXCEPT
+   - Same as =UNION= but it's a set difference.
+   - =EXCEPT ALL= makes the output contain the difference in occurances of the
+     rows in question.
+** Builtin functions
+   - =COUNT=, =SUM=, =AVG=, =MIN=, =MAX=
+   - =SELECT COUNT(*) FROM Table;= -> create one row with the number of rows in
+     the table.
+** GROUP BY
+   #+begin_src sql
+     SELECT col, COUNT(*) as num, AVG(numcol) av
+     FROM Table
+     GROUP BY col
+     ORDER BY num ASC;
+   #+end_src
+
+   - =col= must appear in the output because it's being grouped on.
+   - the =COUNT= and =AVG= will act on the groups, not the entire table.
+** HAVING
+   #+begin_src sql
+     SELECT col, COUNT(*) as num, AVG(numcol) av
+     FROM Table
+     GROUP BY col
+     HAVING num > 3
+     ORDER BY num ASC;
+   #+end_src
+
+   - =HAVING= will create a condition on the returned groups. In this case, we
+     restrict outputs to groups with more than 3 members.
+** Nesting Queries
+*** IN/NOT INT
+    #+begin_src sql
+      SELECT Foo, Bar
+      FROM Table
+      WHERE Foo IN
+            (SELECT Foo
+             FROM Table2
+             WHERE Baz = 'qux');
+    #+end_src
+
+    - Inner query makes a table that the outer query searches on.
+    - The inner query has no relation to the outer query besides providing a
+      table to search.
+*** =, \neq, \geq, \leq, < , > , SOME/ALL
+    #+begin_src sql
+      SELECT Foo
+      FROM R, Y
+      WHERE R.B = Y.B AND Z > ALL
+            (SELECT Z
+             FROM R, Y
+             WHERE R.B = Y.B AND R.A = 'Bar');
+    #+end_src
+
+    - Again, inner query makes a table that the outer query does something with.
+    - In this case, it compares each row's =Z= to *every* =Z= in the inner
+      table.
+*** Correlated Queries
+    #+begin_src sql
+      SELECT R.E, R.Y
+      FROM R
+      WHERE NOT EXIST
+            (SELECT *
+             FROM U
+             WHERE U.E = R.E);
+    #+end_src
+
+    - In this case, the inner query refers to something from the outer query
+      (=R.E=)
+    - Think of it as the inner query getting evaluated for each row of the outer query

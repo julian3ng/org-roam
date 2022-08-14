@@ -1,0 +1,38 @@
+:PROPERTIES:
+:ID:       6a0014d8-81bb-4eb2-85d1-d963559af47e
+:END:
+#+title: Block Ciphers
+* Block Ciphers
+  Block ciphers are functions encrypt and decrypt fixed-length strings
+  (blocks). They can be combined in different [[id:9573a55e-3dc9-4653-9e9b-bffb6b6b5e15][Block Cipher Modes of Operation]] to
+  circumvent this restriction.
+
+  Formally speaking, we have:
+
+  $$E: \{0, 1\}^{k} \times \{0, 1\}^{n} \rightarrow \{0, 1\}^n$$
+
+  Where $k$ is the key length and $n$ is the message length.
+
+  For $K \in \{0, 1\}^k$, $E_K = E(K, M)$ is a 1-1, onto function (permutation)
+  on $\{0, 1\}^n$. This means that with a fixed $K$, for every $C \in \{0, 1\}^n$ there is a
+  unique $M$ such that $E_K(M) = C$. 
+
+  $E_K$ also has an inverse $E^{-1}_K$ due to it being a permutation such that
+  $E_K(E^{-1}_K(C)) = C$ and $E^{-1}_K(E_K(M)) = M$.
+  
+  DES, 3DES, and AES are all examples of block ciphers.
+  
+** DES
+   - Key size: 56 bits
+   - Block size: 64 bits
+   - Speed: 2.5 × 10^7 DES computations / second
+   - Vulnerable to [[id:11e2d575-4491-4861-a5c4-3978b1c48987][Exhaustive Key Search]] on modern hardware
+     - $\text{DES}_K(x) = \overline{\text{DES}_{\overline{K}}(\overline{x})}$
+       reduces the search space
+** 3DES
+   - $\text{3DES}(K_1 || K_2, M) = \text{DES}(K_2, \text{DES}^{-1}(K_1, \text{DES}(K_2, M)))$
+   - Still vulnerable, but takes longer.
+** AES
+   - Variable key size: 128, 192, 256 bits
+   - Block size: 128 bits
+   - Exhaustive key search is believed to be infeasible.

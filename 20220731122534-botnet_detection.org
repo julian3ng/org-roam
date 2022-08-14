@@ -1,0 +1,30 @@
+:PROPERTIES:
+:ID:       30b7360a-aeda-4df9-9524-7313ac3ea489
+:END:
+#+title: Botnet Detection
+* Botnet Detection
+  - In ancient times, attack traffic was obviously different from normal network
+    traffic.
+  - This isn't the case anymore, now there are packers, rootkits, etc. that can
+    defeat antivirus
+  - Mobile devices can be compromised outside of the corporate network
+  - Bots evolve and can have flexible c&c architecture
+  - Looking for one particular signature of an attack is unlikely to work anymore
+* Correlation
+  - To detect a bot, we can use two types of correlation
+  - Vertical (time axis): check if bot has similar repeating actions over time
+  - Horizontal (machine axis): check if multiple machines has same actions
+    simultaneously
+  - BotHunter uses vertical correlation to ID bot lifecycle events
+  - BotMiner: botnets can have different lifecycles, which can evade BotHunter.
+    Therefore, we need both vertical and horizontal correlation to sniff out
+    correlated bots
+  - C plane clustering: communications over time - evade with noise, c&c command
+    changes
+  - A plane clustering: similar activities between bots - evade with disguised
+    activities like slow spam and legit emails with spam links
+* DNS behavior
+  - Bots often look up their c&c domain name on boot
+  - Normal traffic is smoother, people don't all look up the same name
+  - Therefore, we can monitor for spikes of lookups for new domains
+

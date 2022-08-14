@@ -1,0 +1,20 @@
+:PROPERTIES:
+:ID:       c45c2fee-4023-4500-8ba9-ee42230f95cb
+:END:
+#+title: ACID Properties
+* ACID
+  The ACID properties hold true before and after transactions in a database.
+
+  - A: Atomicity
+    - Either an entire transaction happens, or it doesn't happen at all.
+  - C: Consistency
+    - All constraints, whether inside or outside the database, must hold after a
+      transaction. For example, in a banking transfer transaction, the total
+      amount of money should be constant before and after the transaction.
+  - I: Isolation
+    - Multiple transactions should not clash with each other. Transactions
+      should resolve in some order instead of interleaving their operations.
+  - D: Durability
+    - Once complete, the transaction must be written to disk so they survive
+      even through system failures.
+      

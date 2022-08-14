@@ -1,0 +1,81 @@
+:PROPERTIES:
+:ID:       2a4f0d3f-a7c5-425b-aa96-430115595e67
+:END:
+#+title: Database Application Development
+* Database Applications
+  Broadly speaking, we can divide database applications into two kinds: web
+  apps, and traditional apps. Historically, webapps are mostly stateless (with
+  respect to the database), perhaps holding a small amount of data for the
+  current session user. Recently, more state has been moving to the browser
+  itself, making webapps more akin to traditional apps. These have an easier
+  time with state management, separating state out from the database and only
+  interacting with it when necessary. Traditional applications have more control
+  over [[id:c45c2fee-4023-4500-8ba9-ee42230f95cb][ACID Properties]] than traditional web applications.
+
+* Step 1: Analysis
+  This step takes as input all the customer's data formats and requirements, and
+  transforms them into an *information flow diagram* (IFD). This IFD shows how
+  different tasks interact with actual data as input and output to the
+  application and with the database.
+
+  In an IFD, documents, which represent collections of data, are connected to
+  tasks, which represent operations on those inputs, which in turn are connected
+  to the database. Document/task connections are directional to represent the
+  flow of data - a document can be an input, an output, or both.
+
+  The documents and the database are represented as rectangles labeled with
+  appropriate names, while tasks are represented as ovals. The application
+  boundary separates input/output documents from the actual system, which
+  contains the tasks and the database.
+
+  When creating the IFD, some properties to keep in mind are:
+  - all data in the input documents must go somwhere
+  - all data in the output documents must come from somewhere
+  - all data in the database must come from somewhere
+  - all data in the database must be used
+
+* Step 2: Specification
+  Given the IFD and the data types from Step 1, we create an [[id:c1e04c0a-95fe-446a-ad53-c2a4a7ce8528][Enhanced Entity
+  Relationshp Model]] to represent the data, and the pseudocode for each task
+  diagrammed in the IFD.
+
+** EER Diagram
+   The user specification will provide all the entities, their attributes, and
+   relationships between them; it's just a matter of translating this into an EER
+   model.
+ 
+   For example, we might have "Users", with these details:
+   - Email
+   - Password
+   - First Name
+   - Last Name
+   - Nickname
+   - City, State
+   - Postal Code (never updated, provide from a list)
+   - Phone Number (optional)
+     - Formatted XXX-XXX-XXXX
+     - Home/Work/Mobile
+     - Share number on swaps
+ 
+   Most of these would be attributes, except perhaps the phone number, which
+   could itself be either an entity type or a composite attribute.
+ 
+   We must also think of constraints that appear outside the data format and EER
+   diagram, such as "all passwords must fulfill these requirements" or "all ages
+   must be in this range".
+
+** Task Decomposition
+   A task should be decomposed into smaller tasks if:
+
+   1) It has many different operations
+   2) It involves many different schema constructs
+   3) There are independent portions of the task that are blocked by the rest of
+      the task
+   4) There are portions of different frequencies within the task
+   5) Consistency isn't required between different parts of the task ([[id:c45c2fee-4023-4500-8ba9-ee42230f95cb][ACID
+      Properties]])
+   6) A parent task is required to control everything anyway
+
+   The pseudocode for a task should:
+   1) Access attributes via the model presented in the EER diagram
+   2) Use other tasks if necessary (code reuse is good!)

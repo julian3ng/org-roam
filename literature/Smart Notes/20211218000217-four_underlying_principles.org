@@ -1,0 +1,49 @@
+:PROPERTIES:
+:ID:       bcc68246-ecc9-49b3-a681-97637a062491
+:END:
+#+title: Four Underlying Principles
+* Principles
+  1) Writing is the Only Thing that Matters: writing is often
+     portrayed as the end result, coming after brainstorming, topic
+     selection, research, and argument development. This principle
+     argues the opposite - writing is the entire process. Absorb
+     content with the intent to write about it. This gives your
+     consideration to it focus, ensures you understand it well enough
+     to restate it in your own words, and makes your learning have
+     purpose.
+  2) Simplicity is Paramount: notetaking as it is normally done puts
+     much of the burdern on the notetaker. Questions like: "where
+     should you file your note?", "What topic does it fall under?",
+     "Where did I have that margin note?", etc. arise from the
+     inherent complexity of said system. The context of the note is
+     kept by the writer, rather than held by the system itself, so the
+     burder is on the writer to remember where notes are. Sorting
+     notes like this doesn't really make sense - the book's metaphor
+     is amazing: "From the perspective of someone who writes, that
+     makes as much sense as sorting your errands by purchase date and
+     the store they were bought from" (Ahrens 41). To contrast the two
+     systems, the normal way is how one keeps notes one has to
+     remember exist and look for, while the way proposed is designed
+     to keep notes that remind one of forgotten ideas.
+     - Important note: the system requires that you have clear
+       separate between fleeting notes (throwaway), permanent notes
+       (keep forever), and project-specific notes. Keeping everything
+       (permanent always!) is a poor choice, as it clutters everything
+       and makes ideas hard to find and link together. Having only
+       raw, fleeting notes makes it hard to find anything as well,
+       since you haven't processed the content or linked it with anything.
+     - Permanent notes should be self-explanatory and not rely on you
+       recalling things. Remember that the whole purpose is to relieve
+       your brain of having to store the context of everything.
+     - It's ok for notes not to engender new ideas. You can't predict
+       how your ball of knowledge will grow.
+  3) Nobody Ever Starts From Scratch: this ties in with point (1) and
+     [[id:a90b9cb9-92f3-489d-b8c2-1170563194a0][What You've Already Written]] - having all your ideas noted down
+     and linked together in a logical manner makes creating a polished
+     product much easier.
+  4) Let The Work Carry You Forward: doing the work is far easier when
+     you enjoy the process and you have tight feedback loops. The most
+     important feedback loops are: checking understanding by restating
+     content, and filing new knowledge in the context of old
+     knowledge. These allow you to ensure your thoughts are consistent
+     and that you truly understand the ideas presented.

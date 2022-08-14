@@ -1,0 +1,15 @@
+:PROPERTIES:
+:ID:       86f929fb-c1f6-49f5-9a40-63e4a7203f9c
+:END:
+#+title: Data Poisoning
+* Data Poisoning
+  - Rise of ML in security creates rise in attempts to attack the training data
+    of the model (data poisoning)
+  - Other ways: try to find decision boundary of model and then craft payloads
+    to evade (evasion attack)
+* PAYL
+  - Model made for each packet length (1gram frequencies)
+  - Weird packet lengths are marked anomalies
+  - Packets with weird frequencies are marked anomalies
+  - Attackers can blend their attacks by changing byte frequency and length to
+    match that of normal traffic

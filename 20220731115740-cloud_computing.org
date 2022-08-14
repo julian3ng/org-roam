@@ -1,0 +1,81 @@
+:PROPERTIES:
+:ID:       1a341024-c46c-4179-89d1-b31d00f00592
+:END:
+#+title: Cloud Computing
+* Cloud Computing
+  - We want to have a configurable shared pool of resources...
+  - ... that we can rapidly provision with minimal effort 
+* Models
+  - SAAS: software is provided in the cloud
+  - PAAS: software is written using languages and tools hosted in the cloud (the
+    platform)
+  - IAAS: Consumer gets ability to create storage, networks, and other resources
+    from the cloud (infrastructure)
+* Deployment models
+  - Private: only for org
+  - Community: supports a community with shared concerns, could be multiple orgs
+  - Public: everyone can use it
+  - Hybrid: two or more of the above
+* NIST cloud definition framework
+  - Hybrid clouds can be public/private/community and serve SAAS, PAAS, and IAAS
+  - They have certain essential characteristics
+    - On demand self service
+    - Broad nw access
+    - rapid elasticity
+    - resource pooling
+    - measured service
+  - And often have these:
+    - massive scale
+    - resilient computing
+    - homogeneity
+    - geographic distribution
+    - virtualization
+    - service orientation
+    - low cost software
+    - advanced security
+* Security concerns
+  - Cloud computing is massively complex and therefore has many security
+    concerns to address
+  - How can we trust the cloud? How can we encrypt our data? How do we ensure
+    the cloud provider complies?
+** Advantages
+   - Public data being in the cloud reduces access of systems that have private data
+   - Cloud homogeneity makes audits easier
+   - Automated security management
+   - Redundancy and disaster recovery
+** Disadvantages
+   - Must trust the vendor's security model
+   - Customers can't do anything about audit findings
+   - Must petition vendor for support
+   - Can't examine implementation
+   - No physical control
+* Cloud computing security summary
+  Advantages
+  - data fragmentation and dispersal
+  - dedicated security team
+  - greater security investment
+  - fault tolerance and reliability
+  - resliency
+  - hypervisor protection against nw attacks
+  - compliance analysis is easier
+  - data held by unbiased party (according to the provider)
+  - low cost disaster recovery
+  - on demand security controls
+  - real time tampering detection
+  - rapid reconstitution of services
+
+
+  Challenges
+  - Data dispersal vs international privacy laws
+  - isolation management requried
+  - multi-tenancy
+  - logging
+  - data ownership
+  - qos guarantees
+  - dependence on secure hypervisors
+  - high value target to hackers
+  - securing virtual OSs in the cloud
+  - massive outages can knock over internet
+  - public vs private cloud security
+  - public SAAS version control lacking
+  - 

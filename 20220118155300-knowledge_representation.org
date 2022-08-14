@@ -1,0 +1,12 @@
+:PROPERTIES:
+:ID:       cd8bbab7-d28f-4107-af47-715b82c2e7ea
+:END:
+#+title: Knowledge Representation
+* Knowledge Representation
+  Knowledge Representation (KR) aims to create an ontology (a way of describing
+  existence) of the domain of knowledge, mapping out concepts and their
+  relationships. Compared to other high-level conceptual data models, KR works
+  in a broader domain.
+
+  KR includes Reasoning mechanisms to make inferences from existing knowledge,
+  and is more flexible than other models, at the cost of efficiency.

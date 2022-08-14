@@ -1,0 +1,210 @@
+% Created 2022-04-02 Sat 15:12
+% Intended LaTeX compiler: pdflatex
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{grffile}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\author{Julian Eng}
+\date{\today}
+\title{SQL}
+\hypersetup{
+ pdfauthor={Julian Eng},
+ pdftitle={SQL},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 27.2 (Org mode 9.4.4)}, 
+ pdflang={English}}
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\section{SQL}
+\label{sec:org5db7974}
+\subsection{SELECT}
+\label{sec:org0035aa1}
+\texttt{SELECT <fields> FROM <table> WHERE <conditions>}
+\subsection{INSERT}
+\label{sec:org52bf0ea}
+\texttt{INSERT INTO <table> (field1, field2, field3) VALUES (v1, v2, v3)}
+\subsection{UPDATE}
+\label{sec:org94ab9c5}
+\texttt{UPDATE <table> SET f1=v1,f2=v2,f3=v3 WHERE <condition>}
+\subsection{Generally\ldots{}}
+\label{sec:org4721477}
+\begin{verbatim}
+SELECT column1, column2, ..., columnn
+FROM table1, table2, ..., tablem
+WHERE condition;
+\end{verbatim}
+
+Joining tables by commas will give you a cartesian product.
+
+The general form projects the given columns on the rows indicated by the
+condition from the cartesian product of the given tables.
+\subsection{DISTINCT}
+\label{sec:orge313d34}
+\texttt{SELECT DISTINCT <columns> FROM <table> WHERE <condition>}
+
+The \texttt{DISTINCT} keyword will deduplicate the result of the query run without
+the \texttt{DISTINCT}.
+\subsection{NATURAL JOIN}
+\label{sec:org95703e0}
+\begin{verbatim}
+SELECT a.field1, b.field1, a.field2
+FROM A a, B b
+WHERE a.field2 = b.field2;
+\end{verbatim}
+
+The \texttt{FROM} clause creates a catesian product and the \texttt{WHERE} clause creates
+the join condition. 
+
+\begin{verbatim}
+SELECT a.field1, b.field1, a.field2
+FROM A AS a NATURAL JOIN B AS b;
+\end{verbatim}
+
+Same as above. If there are no matching join fields, this is the same as
+cartesian product.
+\subsection{LEFT OUTER JOIN}
+\label{sec:org7e06efb}
+\begin{verbatim}
+SELECT A.field1, B.field1, B.field2
+FROM A LEFT OUTER JOIN B;
+\end{verbatim}
+
+This will join A to B on their matching column; if the column in A doesn't
+have a match in B, B's columns in the output will be NULL.
+\subsection{String Matching}
+\label{sec:org71dc14f}
+\texttt{SELECT <columns> FROM <table> WHERE field LIKE 'Foo\%';}
+
+\begin{itemize}
+\item \texttt{\%} matches any string (regex \texttt{.*})
+\item \texttt{\_} matches any one character (regex \texttt{.})
+\end{itemize}
+\subsection{Sorting}
+\label{sec:org9536da3}
+\texttt{SELECT <columns> FROM <table> ORDER BY field ASC;}
+
+(can replace \texttt{ASC} with \texttt{DESC} for reverse order)
+\subsection{UNION}
+\label{sec:org991e710}
+\begin{verbatim}
+<SELECT QUERY>  UNION <SELECT QUERY>
+\end{verbatim}
+
+\begin{itemize}
+\item All rows of the first query set union with all rows of the second query
+\item DUPLICATES ARE NOT PRESERVED
+\item If you want to preserve duplicates, use \texttt{UNION ALL}
+\end{itemize}
+\subsection{INTERSECT}
+\label{sec:org400d824}
+\begin{itemize}
+\item Same as \texttt{UNION} but it's an intersection.
+\item \texttt{INTERSECT ALL} behaves the same way. (What happens if there's two in the
+first query but only one in the second query?)
+\end{itemize}
+\subsection{EXCEPT}
+\label{sec:org2c37d82}
+\begin{itemize}
+\item Same as \texttt{UNION} but it's a set difference.
+\item \texttt{EXCEPT ALL} makes the output contain the difference in occurances of the
+rows in question.
+\end{itemize}
+\subsection{Builtin functions}
+\label{sec:orgf0ac895}
+\begin{itemize}
+\item \texttt{COUNT}, \texttt{SUM}, \texttt{AVG}, \texttt{MIN}, \texttt{MAX}
+\item \texttt{SELECT COUNT(*) FROM Table;} -> create one row with the number of rows in
+the table.
+\end{itemize}
+\subsection{GROUP BY}
+\label{sec:orgbe4a5db}
+\begin{verbatim}
+SELECT col, COUNT(*) as num, AVG(numcol) av
+FROM Table
+GROUP BY col
+ORDER BY num ASC;
+\end{verbatim}
+
+\begin{itemize}
+\item \texttt{col} must appear in the output because it's being grouped on.
+\item the \texttt{COUNT} and \texttt{AVG} will act on the groups, not the entire table.
+\end{itemize}
+\subsection{HAVING}
+\label{sec:org23ac478}
+\begin{verbatim}
+SELECT col, COUNT(*) as num, AVG(numcol) av
+FROM Table
+GROUP BY col
+HAVING num > 3
+ORDER BY num ASC;
+\end{verbatim}
+
+\begin{itemize}
+\item \texttt{HAVING} will create a condition on the returned groups. In this case, we
+restrict outputs to groups with more than 3 members.
+\end{itemize}
+\subsection{Nesting Queries}
+\label{sec:org573b37a}
+\subsubsection{IN/NOT INT}
+\label{sec:orgdbc0b41}
+\begin{verbatim}
+SELECT Foo, Bar
+FROM Table
+WHERE Foo IN
+      (SELECT Foo
+       FROM Table2
+       WHERE Baz = 'qux');
+\end{verbatim}
+
+\begin{itemize}
+\item Inner query makes a table that the outer query searches on.
+\item The inner query has no relation to the outer query besides providing a
+table to search.
+\end{itemize}
+\subsubsection{=, \(\neq\), \(\ge\), \(\le\), < , > , SOME/ALL}
+\label{sec:orgfc3b78a}
+\begin{verbatim}
+SELECT Foo
+FROM R, Y
+WHERE R.B = Y.B AND Z > ALL
+      (SELECT Z
+       FROM R, Y
+       WHERE R.B = Y.B AND R.A = 'Bar');
+\end{verbatim}
+
+\begin{itemize}
+\item Again, inner query makes a table that the outer query does something with.
+\item In this case, it compares each row's \texttt{Z} to \textbf{every} \texttt{Z} in the inner
+table.
+\end{itemize}
+\subsubsection{Correlated Queries}
+\label{sec:org6a7a542}
+\begin{verbatim}
+SELECT R.E, R.Y
+FROM R
+WHERE NOT EXIST
+      (SELECT *
+       FROM U
+       WHERE U.E = R.E);
+\end{verbatim}
+
+\begin{itemize}
+\item In this case, the inner query refers to something from the outer query
+(\texttt{R.E})
+\item Think of it as the inner query getting evaluated for each row of the outer query
+\end{itemize}
+\end{document}

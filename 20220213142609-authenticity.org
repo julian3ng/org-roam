@@ -1,0 +1,88 @@
+:PROPERTIES:
+:ID:       3adad90a-d79f-4dcc-91ff-aa047dd36574
+:END:
+#+title: Authenticity
+* Message Authenticity
+  Message [[id:a5936704-e256-4969-8d91-31247eac77eb][Security]] isn't the only desirable property in an encryption scheme.
+
+  We also would like:
+  - Authenticity: the sender can't be faked
+  - Integrity: messages can't be modified without the receiver noticing.
+
+  Encryption only gives us privacy. If we look at the One Time Pad, we have:
+
+  $\mathcal{E}(K, M) = K \oplus M$
+
+  If the sender sends $C = K \oplus M$ and it's intercepted by an attacker who
+  encrypts it again with $C' = C \oplus M'$, then the receiver will unknowingly
+  get $M \oplus M'$ upon decryption.
+  
+** Message Authentication Codes (MAC)
+   MACs have a MAC (or tagging / signing) algorithm and a verification
+   algorithm. The MAC algorithm generates a signature for a message which is
+   verified by the receiver via the verification algorithm.
+
+   Formally: $\Pi = (K, MAC, VF)$. $TAG \gets MAC(K, M)$ and we want $VF(K, M,
+   TAG) = 1$
+
+   $VF$ need not be specified if $MAC$ is deterministic - we can always just
+   $MAC$ the message and compare to the given $TAG$.
+
+   For a $MAC$ to be secure, it must be difficult for an attacker to find a new
+   message with the same $TAG$ as another message.
+
+   "Difficulty", as usual, is determined by an experiment.
+
+*** Unforgeability under Chosen Message Attack (UF-CMA)
+    The adversary $\mathcal{A}$ gets two oracles, $MAC(K, \cdot)$ and $VF(K,
+    \cdot, \cdot)$. Its goal is to output some pair of message and tag such that
+    $TAG = MAC(K, M)$, and $M$ was never put into the $MAC$ oracle.
+
+    The advantage for this adversary is $P(VF(K, M, TAG) = 1)$ with $M$ never
+    going into $MAC$.
+
+    UF-CMA doesn't account for replay attacks, where the adversary can send the
+    same message, by definition. However, it's simple to counter them by adding
+    a timestamp into the message before creating the tag.
+    
+**** Example 1
+     For example: let $E$ be a block cipher and $MAC$ be defined as $\tau_K(M) =
+     \oplus_i E_k(M_i)$ where $M_i$ is the $i^{\text{th}}$ block.
+
+     We have two ways to break this:
+
+     1) $TAG = \tau_K(0^n1^n)$. Return $1^n0^n, TAG$. Works because $\oplus$ is commutative.
+     2) Return $0^{2n}, 0^n$. Works because $x \oplus x$ is $0$ for any $x$.
+
+     Advantage $P(VF_K(1^n0^n, TAG) = 1) = 1$ by construction, same for (2).
+    
+**** Example 2
+     Let $\tau_K(M) = \oplus_i E(\langle{i}\rangle||M[i])$.
+
+     To break, the adversary makes three tags:
+
+     - $T_1 = \tau_k(X_1Y_1) = E_k(\langle1\rangle X_1)\oplus E_k(\langle2\rangle Y_1)$
+     - $T_2 = \tau_k(X_1Y_2) = E_k(\langle1\rangle X_1)\oplus E_k(\langle2\rangle Y_2)$
+     - $T_3 = \tau_k(X_2Y_1) = E_k(\langle1\rangle X_2)\oplus E_k(\langle2\rangle Y_1)$
+
+     If we xor all these together, we get some cancelations and can then return
+     $T_1 \oplus T_2 \oplus T_3 = \tau_k(X_2Y_2)$ as the tag and $X_2Y_2$ as the message.
+       
+*** Modes of Operation for MACs
+    A Psuedorandom function is a secure MAC, but that only holds for short
+    inputs.
+
+    To make a good MAC out of a block cipher...
+
+    Consider CBC-MAC on messages from $\{0, 1\}^{mn}$ (messages $m$ blocks long
+    with block size $n$)
+
+    - $C[0] = 0^n$
+    - $C[i] = E_K(M[i] \oplus C[i-1])$
+    - Return $C[n]$
+
+    This gives us $Adv_{CBC-MAC}^{UF-CMA}(\mathcal{A}) \leq
+    Adv_E^{PRF}(\mathcal{B}) + \frac{m^2q_A^2}{2^{n-1}}$
+
+    This construction doesn't work for variable length messages, but such modes
+    do exist.

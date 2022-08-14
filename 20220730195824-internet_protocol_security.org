@@ -1,0 +1,63 @@
+:PROPERTIES:
+:ID:       9f24d180-a396-4d7d-a2f0-ef7f380ca0b7
+:END:
+#+title: Internet Protocol Security
+* Internet Infrastructure
+  - Has many protocols associated with traffic transport
+    - Local and inter-domain routing (BGP)
+    - TCP/IP for routing and messaging
+    - BGP for routing announcements
+    - DNS to find IP from name
+* Tiers
+  - Tier 1 can reach all networks through peering
+  - Tier 2 can reach some networks through peering and purchases access to other
+    networks
+  - Tier 3 purchases all network access from others
+* Protocol stack
+  - Application Protocol: HTTP
+  - Presentation: Protocol conversion, data encryption, decompression, and their
+    inverses.
+  - Session: Setup and teardown sessions
+  - Transport: TCP/IP - how to get stuff from A to B
+  - Network: how to get stuff from one network to the next
+  - Link: how to get stuff from node to node
+  - Physical: how wires work
+* TCP/IP
+  - Application message can be broken into many TCP packets that can
+    encapsulated with lower layer headers and sent along
+
+  - IP is unreliable and best effort, has no order guarantees
+    - Can get to IP gateways, which must know how to get to next network
+    - packets have TTL which kills the packet when TTL=0
+  - No source IP authentication
+
+  - TCP has CONNECTIONS
+    - ordering guaranteed
+    - delivery guaranteed
+** TCP handshake
+   - SYN(SN_c=random, AN_c=0) = hello, here's my first sequence number
+   - SYNACK(SN_s=random,AN_s=SN_c+1) = here's my first sequence number, I see yours
+   - ACK(SN_c=SN_c+1, AN_c=SN_s+1) =
+     here's my next sequence number, I saw your first
+** Problems
+   - Packets can be compromised by untrusted hosts
+   - TCP state can be eavesdropped
+   - DOS
+
+
+   - Example: Attacker sends SYN to server with victim's IP as src
+   - Server SYNACKs to victim
+   - Attacker sends ACK to server before the victim does
+* Other Protocols
+  - ARP: address resolution protocol - maps IP addresses to hardware addresses
+    for the link layer
+  - BGP: spread routing info among ASs
+  - OSPF: finds shortest paths internal to an AS
+** Problems
+   - ARP: can confuse gateway into sending traffic for other hosts.
+   - BGP: anyone can send route updates
+     - 
+** Solutions
+   - Add certificates to route advertisements
+   - SBGP: sign every hop of a bgp path advertisement
+   - 

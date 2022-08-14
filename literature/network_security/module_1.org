@@ -1,0 +1,349 @@
+* Lecture 1: DDOS
+** DOS Attacks  
+   - Random Scanning: every compromised computer probes random addresses
+   - Permutation Scanning: every compromised computer shares a common
+     pseudo-random permutation of the IP address space
+   - Signpost Scanning: uses communication patterns of compromised computer to
+     find new targets
+   - Hitlist scanning: a portion of a list of targets is supplied to a
+     compromised computer
+   - Subnet Spoofing: generate random addresses in an address space
+   - Random Spoofing: generate random 32-bit numbers to stamp packets with
+   - Fixed Spoofing: spoof the target's address
+   - Server Application: target a server application
+   - Network Access: overload or crash the communications of a network
+   - Infrastructure: attack a crucial global internet operation like a core router
+** Network DOS
+   Goal: take out a large site with little computing
+   How: Amplification - small number of packets generates a large effect
+
+   Types: 
+   1) DoS bug: design flaw allows one machine to disrupt a service
+   2) DoS flood: command botnet to flood service
+
+
+   DoS can happen at any layer, Application, Presentation, Session, Transport,
+   Network, Data Link, Physical
+*** NTP Vulnerable to Amplification: WHY?
+    - Small command can have large response
+    - Vulnerable to IP spoofing (can set source IP to target and NTP will reply
+      to the target)
+    - Difficult to ensure computers only talk to legit NTP servers
+** Amplification Example
+   - Attacker controls a group of bots
+   - Bots each send requests to server with spoofed IP of target
+   - Server replies a lot to target due to spoofing and number of requests
+** TCP/IP
+   - IP is connectionless: not reliable, doesn't guarantee arrival or ordering
+   - No authentication of source address
+
+
+   - TCP is session-based: destination ensures arrival and ordering
+   - Congestion control and in-order delivery are provided
+   - SEQ and ACK numbers are used for this
+
+
+   Handshake:
+   - Client: send SYN: (SN_c: rand, AN_c: 0) to server
+   - Server: reply SYNACK: (SN_s: rand, AN_s: AN_c + 1) to client
+   - Client: send ACK: (SN_c: SN_c + 1, SN_s + 1) to server
+** TCP SYN Flood
+   - SYNs cause the server to wait for the ACK packet after it sends a SYNACK,
+     meaning it has to hold some state for the pending connection.
+   - If we send a bunch of SYN with random addresses, we can blow up the
+     server's memory since a lot of the ACKs won't reply, causing the server to
+     max out its connections and deny further ones.
+   - Bad defenses: increase backlog size or decrease timeout (counterplay:
+     increase SYN sending rate)
+   - Good defense: remove server state requirement with Syncookies
+   - SYN cookie: instead of using a random number for the sequence number, use a
+     value $n$ that encodes a timestamp, maximum segment size that would have
+     been in the queue, and a hash of the server IP, server port, client IP,
+     client port, and time. After getting a SYNACK, the client sends $n+1$ as
+     the next sequence number (due to TCP spec). The server calculates
+     $(n + 1) - 1$ to recover $n$ and check the cookie.
+   - Without the SYN queue entry, the server must reject all TCP options.
+   - SYN floods can be used by botnets to great effect.
+   - One defense: use powerful proxy to send SYNACKs back. Proxy won't get a lot
+     of ACKs.
+     - Can be circumvented by having the botnet complete the request and then
+       send HTTP HEADs to flood (looks like a bunch of legitimate users).
+     - Means the attacker ust use real IPs, revealing bots and allowing blocks /
+       rate-limits.
+** UDP Flood
+   - Can spoof UDP packet source IP
+   - Packets look the same as legitimate traffic, so firewalls can't defend
+     against it.
+   - If it does inspect the packets, it has to inspect a whole ton of them.
+** DoS and Route Hijacking
+   - BGP Hijacking:
+     - advertise same prefix as another AS and steal their traffic
+     - advertise more specific prefix as another AS and steal their traffic
+** DoS at Higher Levels (not network protocols)
+   - SSL/TLS Handshake:
+     - RSA encryption client Hello's RSA decryption server
+     - Server Hello's client back with public key
+     - Client key exchange happens w/ server
+   - This is cryptographically secure, BUT RSA decrypt is 10x more expensive
+     than the encrypt, so an attacker can send a bunch of requests to DoS the
+     server.
+** DoS Mitigation
+*** Client Puzzles (like an algorithm CAPTCHA)
+    - Effectively rate-limits clients, and server can check solutions easily.
+    - During DoS attacks, everyone must submit puzzle solutions, and vice-versa.
+    - For example, during DoS attack, TCP seq number becomes input to the puzzle,
+      and the first data packet must contain the solution.
+    - Can adjust challenge to adjust delay of clients
+    - Requires changes to client and server, will uhrt low-power
+      consumers
+    - Can use memory-bound function
+    - Puzzles should be stateless and increase in complexity with the attack power.
+*** CAPTCHA
+    - Have captcha that requires a human
+*** Source Identification
+    - Goal: identify packet source so we can block attacker packets at the source
+      - Ask ISP to filter unexpected source IPs
+    - Problem: requires ALL ISPs to do this, otherwise we can't actually block
+      anything
+    - No incentive to deploy this because there's no benefit until all ISPs do
+      it
+**** Traceback
+     - Goal: Given attack packets, determine path to source
+     - How: change routers to record info in packets
+     - Assumptions:
+       - Most routers aren't compromised
+       - Attackers send lots of packets
+       - Attacker route to victim is fairly stable
+     - Simple Method:
+       - Each router adds its own IP address to the packet
+       - Problem: requires space in packet which can break if path is long
+       - Problem: IP format doesn't have extra fields for this
+     - Better way:
+       - Note: MANY packets take the same path to the destination
+       - Therefore, we can store a single router IP probabilistically at a fixed
+         cost to space
+       - Then, we can get all the routers involved if we have a bunch of packets.
+***** Edge Sampling
+      - Edge = start and end IP addresses
+      - Distance = number of hops since edge was stored
+      - To mark a router $R$:
+        - Flip a coin:
+          - On heads, write IP address for $R$ into start address of packet and
+            0 distance
+          - On tails:
+            - if distance was 0, write address of $R$ into end address
+            - Increment the distance field either way
+      - To reconstruct the path, we can use the edges and the distance from the
+        start router.
+      - Number of packets required to reconstruct path:
+        $E(x) < \frac{\ln(d)}{p(1-p)^{d-1}}$
+        - Where $p$ is the marking probability and $d$ is the length of the path.
+** Reflector Attack
+   1) Attacker spoofs victim's IP, sending DNS query to many DNS servers
+   2) All DNS servers respond to victim
+   3) Victim is flooded
+
+
+   Generally used by bot master. Bots send these spoofed DNS requests to many
+   DNS servers.
+
+   Traceback won't work because the flood attack originates from the DNS
+   servers, which might not mark packets or keep state.
+
+   To defend:
+   - distribute servers across multiple networks and locations
+   - limit traffic from name servers
+** Capability Based Defense
+   - Basic idea: receivers specify what kinds of packets it wants
+     (capabilities), and senders must provide capability in SYN packet
+   - Requests are rate-limited per source
+   - Receiver respond with the capability of the server
+   - Routers only forward request packets and packets with correct capability
+   - Capabilities can be blocked if the source is attacking
+** Reality
+   - DDoS attacks are a part of the internet and we have to design around them
+   - Internet is not well-designed against DDoS attacks
+
+* Lecture 2: Cybercime!
+** Underground: Actors
+   - Exploit writers: write exploits, reverse engineer software, sell them.
+   - Botnet masters: buy exploits, develop malware, control botnets, and rent
+     out botnets for attacks.
+   - Spammers: use malware from botnet masters to send spam on behalf of other
+     actors
+   - Phisher: set up scam sites to steal info. Spammers spread their links.
+   - Counterfeiters: set up sites to sell fake goods. Need to clear funds from
+     user credit cards.
+   - "Bulletproof" Hosting Providers: provide dedicated servers to other bad
+     actors to avoid getting taken down. Hosted in lawless areas.
+   - Carders, Cashiers, Mules: turn stolen accounts and cards into cash. Help
+     launder money.
+   - Crowdturfers: create, verify, and manage fake accounts. Solve CAPTCHAs with
+     crowdsourcing.
+** Underground: Ecosystem
+   - Bad actors form an ecosystem: exploit writers sell exploits to botnet
+     masters, who use them to create botnets and sell attacks to various
+     unlawful activities. Spammers are employed by phishers and counterfeiters
+     to spread their malicious websites. Carders and cashiers take stolen
+     accounts and cards and launder them into cash for the other actors'
+     services, and so on and so forth.
+** Underground: Forums
+   - They're everywhere!
+   - Often targeted by law enforcement, but keep popping up.
+   - Studied by researchers to gain insight into attacks.
+   - Frequented by buyers, sellers, and rippers (steal from naive buyers and
+     sell fraudulent services)
+   - Lots of ads for stolen stuff, hacked assets, trade offers
+** Exploits-as-a-Service
+   - In the past, compromise and monetization happened within the same criminal
+     organization.
+     - Develop hack, attack with it, then use exploited machines to make money.
+   - Now, people develop exploits and sell them to others who use them.
+     - Compromised computers get sold later.
+   - Malware distribution: drive-by download - compromised site distributes
+     malware as a download
+     - Attackers can buy and deploy exploit on their own server or rent an
+       exploit server with the kit deployed already
+   - EaaS requires attackers to get traffic themselves - they use spam and
+     phishing techniques to direct victims to exploit servers.
+     - This mechanism has been commoditized as well, bundling traffic
+       acquisition and the exploit server together, creating Pay Per Install
+       (PPI) 
+** Web
+   - Surface Web: readily accessible to all
+   - Deep Web: not indexed by search engines
+   - Dark Web: exists on darknets only
+   - Darknet: overlay network only accessible with special
+     software/configurations/authorization, often using nonstandard protocols
+     and ports (e.g. using tor)
+   - Most of web is Deep Web (96% according to lecture)
+** Traffic PPI
+   - Three kinds of actors
+     1) Victims: get malware
+     2) Clients (exploit users): pay exploit developers, getting malware to
+        victim in exchange.
+     3) Exploit developers: get money
+
+   - Keywords
+     - Trojan Download Manager: Software that lets the attacker to
+       update/install malware on the victim's computer
+     - Crypter: hides malicious code from antivirus software
+     - Blackhat Search Engine Optimizer: increases traffic to attacker's site
+       via SEO.
+     - Doorway Page: list many keywords to increase SEO, redirecting to
+       attacker's site.
+** Malware to Botnets
+   - Compromised computers have resources:
+     - Unique IPs
+     - Bandwidth
+     - Spare CPU cycles
+   - Needs command and control (c&c) infrastructure to control bots
+     - Push updates
+     - Synchronize botnet
+     - Rent out to others
+*** Command and Control
+    - Centralized Control: one director commands the rest
+      - Efficient, but not robust. One point of failure.
+    - P2P: command server sends command, and tells bots to advertise the command
+      or update to its peers until all of them have the command/update.
+      - Robust, but doesn't have complete synchronicity or direct knowledge
+    - Most popular today:
+      - All bots connect to a c&c website
+      - Website can be moved to different servers and have multiple IPs
+      - DNS -> IP mapping can be changed
+      - To get around blocking names:
+        - Master and bot share same random seed and generate a list of names
+          every day.
+        - Master registers a few of these names, bots connect to them.
+        - Each name can have randomly changing IP as well.
+** Spam
+   - Large number of recipients
+   - Inappropriate or irrelevant messages
+   - Estimated 90% of emails are spam
+   - Spammers spread malware and phishing with botnets
+   - Requires a lot of IPs to get around spam filters
+   - Spam used to sell counterfeit goods
+   - Spammers collect commission on the scams it advertises for.
+   - Spam conversion rate: number of messages that result in final sale.
+*** Questions
+    - Why keep sending spam if it's mostly filtered?
+    - How much spam gets past filters?
+    - How much money does each succesful transaction make?
+
+    To answer, we need to infiltrate a spam process.
+
+    Case study: Storm botnet:
+
+    - On average, 0.0014% of spam makes it through filters
+      - Emails fail to result in a transaction when:
+        1) Email doesn't make it to the user
+        2) Spam filter gets it
+        3) User ignores it
+        4) User goes to evil site then leaves
+        5) A user was actually an internet crawler
+
+    - Results in 1.7 million dollars a year to the operators, accounting for
+      commission.
+** Scamming is Hard
+   - There's a large infrastructure behind scams
+   - Need hosting, attack infrastructure, shady domain name, shady DNS, shady
+     servers, etc.
+   - Shady stuff is expensive for being bulletproof
+   - Have to actually ship to customers or else customers will complain and
+     you'll get shut down
+
+* The DDos That Almost Broke the Internet
+  - https://blog.cloudflare.com/the-ddos-that-almost-broke-the-internet/
+
+** Initial attack
+   - Large attack, sent 85 Gbps of traffic, and got worse.
+   - Started Monday March 18, 2013 targetting spamhaus.org at 10Gbps
+   - March 19, became 90Gbps
+   - Fluctuated between 90 and 30 until March 21 1:15 UTC
+   - March 22 18:00 UTC, attack resumed at 120Gbps peak
+   - Mitigation: cloudflare used Anycast technology to spread the distributed
+     attack's load across all their data centers
+    
+** Peering
+   - Recall that autonomous systems (AS) can connect through peering and
+     provider/customer relationships
+   - Two ways that CF peers:
+     1) Connect router to a border router on the other network
+     2) Use an internet exchange (IX), which can usually be found in major
+        cities
+   
+** Going after Upstream
+   - Attacker started going after direct peers and providers (those from whom cf
+     bought bandwidth), mostly tier 2 providers.
+   - If attacker had gone for a tier 1 provider then anycast would've
+     distributed it across the world, so they attacked tier 2 to concentrate the
+     attack.
+   - One tier 1 provider said they saw upwards of 300Gbps from the attack, which
+     overwhelmed their routers' ports.
+   - The largest routers have ports rated for a max of 100Gbps (they can be
+     bound together to provide more, but eventually they can be overwhelmed)
+
+** Going after IXs
+   - Attacker went after the IXs cf associated with
+   - Suggestions to limit attacks:
+     1) Make it more difficult to attack IX members' IP addresses that are used
+        to exchange traffic. How?
+        1) IPs should not be announced as routable to the public
+        2) Packets to those IPs should only be permitted from other IX IPs
+        
+** Full Impact
+   - DNS Amplification: use a spoofed source address to set the target, and have
+     the response to the request be disproportionately larger than the request
+     itself. DNS happens to be like this because it generally uses UDP (we can
+     spoof the source address) and we can generate a large response.
+     - For example, =dig ANY isc.org @x.x.x.x= where =x.x.x.x= is an open DNS
+       resolver will give us a large response.
+     - "Recursive DNS resolver": local DNS server, when queried, makes request
+       to higher level DNS server, etc. etc. and eventually gets the IP.
+     - "Open DNS resolver": with recursive resolvers, we want to allow
+       *authorized clients only*. And OPEN DNS resolver is one without those
+       access controls.
+   - Open Resolver Project: full list of 21.7M open resolvers, made with the
+     purpose of shutting them down.
+     
+

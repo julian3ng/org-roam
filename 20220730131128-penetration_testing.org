@@ -1,0 +1,41 @@
+:PROPERTIES:
+:ID:       9074d54c-4a9c-48fb-8e02-ce62f01106a9
+:END:
+#+title: Penetration Testing
+* Pentesting
+  Goal: evaluate strength of all security controls.
+  - Procedural
+  - Operational
+  - Technological
+
+
+  Through pentesting we can discover vulnerabilities, secure the system, and
+  demonstrate threats to stakeholders.
+* Methodology
+** Footprinting
+   Gather information about the target - can use tools like search engines,
+   whois, and nslookup.
+** Scanning
+   Given an IP range, check what machines are up, what services are running,
+   what vulnerabilities exist, etc.
+   - Nmap and similar tools are used here.
+** Enumeration
+   More in-depth probing: find vulnerable accounts and services
+** Gaining Access
+   Pick a vulnerability from scanning and execute it
+** Escalating Privilege
+   If we only have user privileges from gaining access, use another
+   vulnerability to gain root
+** Pilfering
+   Gather info, complete objective!
+** Covering Tracks
+   Hide the bodies
+** Creating Backdoors
+   Make it easy to get in next time
+* Pentesting should happen...
+  - When infrastructure changes
+  - When applications change
+  - When end user policies are changed
+  - When security patches are installed
+* Social Engineering
+  Exploit user naivete into undermining their own security.

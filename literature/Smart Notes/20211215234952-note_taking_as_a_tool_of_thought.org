@@ -1,0 +1,35 @@
+:PROPERTIES:
+:ID:       f082a0b4-1a25-462f-b8be-c5d3910ea920
+:END:
+#+title: Note Taking as a Tool of Thought
+* Bibliographical Note: _How to Take Smart Notes_, Sönke Ahrens
+* How this is different from the norm
+  - This method differs from the norm - where the focus is on the
+    final product, be it an essay, paper, article, or other such
+    document - in that it focuses on the lead up to that point in the
+    form of notes.
+* Why focus on notes?
+  - The notes themselves are important! Poor notetaking doesn't have
+    immediate consequences, but will eventually bite you in the butt.
+  - The quality of the final document depends on [[id:a90b9cb9-92f3-489d-b8c2-1170563194a0][What You've Already Written]]
+* What is the goal of this method?
+  - This notetaking method aims to build a base of interconnected
+    notes. The connections between notes serve as context from which
+    one can build ideas and glean insights.
+  - Furthermore, it aims to provide a flexible /system/ of taking notes
+    that makes it easy them easy to add and retrieve as new ideas
+    come.
+  - We want to have an external framework to think within.
+* How does the system work?
+  - Note ideas and index them
+  - Connect notes that relate (be sure to note why when linking!)
+  - Niklas Luhmann: [[id:2925a105-9084-41cf-92d5-b6eb4eabca61][Zettelkasten, as originally used]]
+  - We end up with a [[id:326f6520-f99b-44e9-8585-986ef0c705ba][Dense Graph of Notes]] as opposed to a hierarchical
+    tree of notes separated by topics and categories.
+  - The system perscribed in this book is a bit more
+    involved. [[id:e4eca592-4f5c-4414-9e47-c3736938007a][Notetaking per The Book]]
+  - We don't need a lot of materials for this. [[id:d7951caa-be15-47ab-bf47-9e815d501f45][Materials for
+    Notetaking]]
+  - There are [[id:bcc68246-ecc9-49b3-a681-97637a062491][four underlying principles]] that ensure the system
+    facilitates learning and writing.
+  - Ahrens presents [[id:5bf9e8f4-8ae3-4ffa-86ce-ddafad015384][Six Steps to Successful Writing]].

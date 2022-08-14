@@ -1,0 +1,55 @@
+:PROPERTIES:
+:ID:       c61e999a-2c0b-4a9c-a9a5-fb6fe457b092
+:END:
+#+title: Doman/Network Reputation
+* Domain & Network Reputation
+** DNSBL
+   DNS Black List levels:
+   - White: Complete Trust
+   - Black: No trust
+   - Grey: Not directly spamming but has spam behaviors
+   - Yellow: Known to produce both spam and non-spam
+   - NoBL: Doesn't send spam but isn't fully trustworthy
+** Static Blacklist Model
+   - Everyone is innocent until proven guilty
+   - Problem: spammers just get new IPs
+   - Solution: everyone is suspicious until proven innocent
+** Attacker DNS usage
+   - Botnets use shortlived DNS domains
+   - Spyware uses anonymously registered domains
+   - Adware uses disposable domains
+** NOTOS
+   - dynamically assigns reputations to names
+   - uses machine learning to make a scoring function based on network and dns
+     zone features of resource provisioning, usages, and management of the
+     domains
+   - Good accuracy with low FP rate and high TP rate
+   - Deployed at large local networks like ISPs (recursive DNS service)
+** KOPIS
+   - Works at Authoritative/TLD nameservers 
+   - extracts features and uses ML to make a scoring function
+   - low FP high TP
+** Evil domain names
+   - features to look for
+     - num chars
+     - num hyphens
+     - num digits
+   - High amounts of these tend to be malicious
+** Notation
+   - RR = resource record = domain + IP
+   - 2LD, 3LD = 2nd and 3rd level domain ex) example.come, www.example.com
+   - RHIP = related historic IPs: all IPs that have been mapped to domain name
+   - RHDN = related historic domain names: all names mapped to an IP
+   - ADNT = authoritative domain name tuple: requester, domain name, and RDATA
+     (all data about the domain)
+** Features
+   - Network-based: things relating to network like IPs, ASs, etc.
+   - Zone-based: things relating to names like length, char frequency, etc.
+   - Evidence-based: things like "has malware connected to this IP"
+** Taking down malware
+   - Kind of like making a normal attack, just against the malware
+   - Enumerate malware
+   - Poke it to see what it can do when denied resource access
+   - Stop it from doing that
+   - Cut off the c&c domain
+

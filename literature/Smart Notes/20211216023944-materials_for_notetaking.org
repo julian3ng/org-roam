@@ -1,0 +1,14 @@
+:PROPERTIES:
+:ID:       d7951caa-be15-47ab-bf47-9e815d501f45
+:END:
+#+title: Materials for Notetaking
+* Keep it Simple!
+  - Existing tools and workflows often get caught up in themselves and
+    the focus becomes the act of notetaking, rather than the more
+    important acts of thinking, learning, and synthesizing.
+  - Thus, we need only four things:
+    1) Writing apparatus: something to write with and something to
+       write on (intended for your fleeting notes)
+    2) Reference management system: something to collect your readings
+    3) Slip box: org-roam
+    4) Editor: emacs

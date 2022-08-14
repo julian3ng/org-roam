@@ -1,0 +1,10 @@
+:PROPERTIES:
+:ID:       326f6520-f99b-44e9-8585-986ef0c705ba
+:END:
+#+title: Dense Graph of Notes
+* Why do we want a dense graph of notes?
+  - Having a dense graph of notes makes seeing connections across
+    seemingly disparate topics easier. If we divide notes by
+    predefined topics, subtopics, categories, etc., then we
+    artificially enforce the divisions and stifle connections between
+    them.

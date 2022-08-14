@@ -1,0 +1,73 @@
+:PROPERTIES:
+:ID:       c63abf27-1c68-45ed-ad8e-c218ebf07c76
+:END:
+#+title: Domain Name Systems
+* DNS
+  - Domain name = a name in dns format
+  - DNS zone = a set of names under the same authority (i.e. .com)
+  - Delegation = transfer of authority for/to a sub domain
+* Hierarchy
+  - TLD name servers for .com, .edu, etc.
+  - followed by name servers for smaller domains etc. etc.
+  - www.cs.mit.edu would have name servers for edu, mit, cs, and www(?)
+* Resolving
+  - Root nameserver gets DNS request from local DNS server and returns an NS
+    record directing us to the TLD server.
+  - TLD server does the same to the authoritative name server
+  - Authoritative name server gives us the IP via an A record
+  - Other record types: MX = mail address, TXT = generic text
+  - DNS records are cached to avoid having to do the entire recursion each time.
+  - Cached records each have a time to live
+  - Negative DNS queries are also cached to avoid having to recurse for missing sites
+  - Cached data times out eventually so changes can register
+* Vulnerabilities
+  - We trust the host/address mapping
+  - Compromising a DNS server can point us at evil websites
+  - Solution: authenticate requests and responses with DNSsec
+* Cache Poisoning
+  - Get DNS server to cache evil records
+  - DNS uses 16b request identifier to pair queries with answers
+  - if the server ignores identifiers, has predictable IDs, and accepts
+    unsolicited DNS records, then it is vulnerable to cache poisoning
+
+
+  Example:
+  - Alice asks for google's DNS record with request ID of 12345 from the local
+    resolver
+  - Eve tries send a fake DNS record to local resolver with a request ID of
+    GUESS
+  - If GUESS is right, then the local DNS server takes it and returns the evil
+    IP to Alice
+  - If GUESS is wrong, then Eve has to wait for a TTL to try again
+
+
+  Kaminsky's poisoning attack
+  - Evil client asks for RANDOM.example.com from local nameserver
+  - Evil server impersonates TLD server with RANDOM.example.com = something and
+    www.example.com = evil address, and a request ID
+  - If we get it wrong, try with a new RANDOM and the next request ID, no need
+    to wait for TTL
+* Cache Poisoning Defense
+  - Increase request ID space
+  - Randomize src port
+  - Ask for DNS queries twice (too much load on servers)
+  - DNSsec
+* DNSsec
+  - Guarantees authenticity of DNS origin, integrity of reply, and authenticity
+    of denial of existence
+  - Does this by signing replies at every step
+* Rebinding attack
+  - Victim accesses evil.com, which goes to evil nameserver
+  - Evil nameserver responds with evil server's IP and LOW TTL, as well as evil
+    javascript
+  - Evil nameserver next TTL responds with internal IP
+  - Victim now thinks internal IP and evil server are SAME DOMAIN, so evil
+    javascript can share information between them because of SOP
+
+  - Mitigation: DNS pinning = refuse to switch to new IP (but breaks proxies,
+    vpns, etc.)
+
+  - Better defense: check host header for unrecognized domains
+  - Authenticate with something other than IP
+  - Firewall: forbid external names from resolving to internal addresses
+

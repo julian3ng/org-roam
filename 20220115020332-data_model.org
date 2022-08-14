@@ -1,0 +1,33 @@
+:PROPERTIES:
+:ID:       cad38ac1-3d65-44ef-87f5-e73670a6bb4b
+:END:
+#+title: Data Model
+* Data Model
+  Confusingly, a data model is the formalism used to create a model of data,
+  according to the CS6400 lectures. Concretely, the book _Fundamentals of
+  Database Systems_ defines it as a collection of concepts used to describe the
+  structure of a database. Given the data model, the type of database follows.
+  From the relational model, a relational database; from a document-based model,
+  a NOSQL database; etc.
+  
+  These include the data structures, integrity constraints, and operations
+  allowed. Different data models provide different sets of these three items.
+
+  Data models come at different levels of abstraction. A high level data model
+  will show structure closer to how the end user would see it, while a low level
+  model will show how the data is actually stored and retrieved at the operating
+  system level. In between is representational, or implementation data model,
+  which shows the logic.
+
+  Models can be [[file:20220113221007-tradeoffs_between_databases_and_ad_hoc_storage.org::Databases are self describing][*self-describing*]], where the description of the data is located
+  in the same place as the data itself. In particular, a relational database
+  that stores its [[id:33a4283f-414d-410d-b1a5-24ae209916fe][Database Schema]] in the same way as its data can be said to be
+  self-describing.
+  
+  Some examples:
+  1) [[id:3fe08c66-ca54-4fbb-af69-2604763298c1][Entity Relationship Model]]
+  2) [[id:c1e04c0a-95fe-446a-ad53-c2a4a7ce8528][Enhanced Entity Relationshp Model]] - a high level model
+  3) [[id:fd0a7d36-7f49-4123-ad4a-022b6b3d9b99][Relational Model]] - a representational model
+  4) Hierarchical model
+  5) [[id:cd8bbab7-d28f-4107-af47-715b82c2e7ea][Knowledge Representation]]
+

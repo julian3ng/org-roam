@@ -1,0 +1,229 @@
+:PROPERTIES:
+:ID:       5bf9e8f4-8ae3-4ffa-86ce-ddafad015384
+:END:
+#+title: Six Steps to Successful Writing
+
+* Seperate and Interlocking Tasks
+  :PROPERTIES:
+  :ID:       fdffcfe0-00fc-4210-a836-ccd22e23cefe
+  :END:
+  
+  This section makes it a point to focus on one task at a time. Multitasking is
+  antithetical to that end, especially when it comes to writing. There are many
+  interlocking tasks involved in writing (reading, researching, synthesizing,
+  restructuring, etc.)  that all require /different types/ of attention, and
+  context-switching between them hampers productivity.
+
+  It is important to separate the types of attention when switching between
+  tasks - writing requires the writer to get in their own head and write their
+  own position, while editing requires the editor to take an objective
+  viewpoint. Writing while having "editor's attention" will make progress
+  unbearably slow, while editing with a writer's point of view will make the
+  editing ineffectual by way of not considering one's points
+  objectively. Similar problems can be found in other tasks; therefore, it's
+  best to be flexible about how one devotes attention to tasks, instead of
+  singlemindedly pursuing the One True Method.
+
+  This flexibility stems not from making plans, as one might initially think,
+  but by becoming an expert. Experts have a feel for the process and a certain
+  intuition that can't be captured by following a step-by-step process. This
+  experience can only really be gained by doing it. Tying this back to the
+  slipbox, we find another feedback loop: writing notes and assimilating
+  knowledge gives us writing experience, improving our expertise in the area.
+
+  Writing things down in the slipbox allows us to flush our short-term memory,
+  which isn't designed to keep information for very long. The process of
+  slipboxing information increases our understanding of the data, which in turn
+  improves our recall thereof. It's easier to recall things we understand, in
+  concert with their context with other ideas. This is why the slipbox has such
+  an emphasis on linking notes together. Flushing our short-term memory also
+  enables us to focus on the task at hand by literally removing all distracting
+  thoughts.
+
+  The task of writing should be broken up into different tasks (each with
+  accompanying writing and interlocking links) such that we can come back to any
+  point in the process without having forgotten anything to short-term
+  memory. Comeback points could be TODO headers, a non-empty inbox, or links to
+  notes with instructions to elaborate. We can also /not/ do this and ponder
+  ideas and questions in our short-term memory.
+
+  After memory and attention as limited resources, we have motivation. Again,
+  our external framework in the form of the slipbox will enable us to save on
+  motivation. This effect stems from the decision to use one and only one system
+  for research, notetaking, and writing - in doing so, we forgo the need to make
+  unnecessary choices like what notebook to use, what method of note transfer to
+  use, etc. This saves motivation from those decisions. Another motivation-saver
+  comes in the form of our short-term memory saving process of noting each step
+  of our progress, which lets us take breaks without fear of losing track of
+  progress. Breaks allow us time to process, which in turn helps to learn the
+  material.
+     
+* Read for Understanding
+  :PROPERTIES:
+  :ID:       87b6b521-6064-49a5-bf2d-7659ee16fca4
+  :END:
+  
+  While reading, have a pen in hand! This is the first step of the
+  note-taking process using the slipbox. (Fleeting notes as per
+  [[id:e4eca592-4f5c-4414-9e47-c3736938007a][Notetaking per The Book]]). After having processed our fleeting notes,
+  we have our densely connected web of ideas, from which we can pull a
+  thread and have a good start for a finished product. We again
+  reiterate that we have to restate our readings in our own words,
+  along with any additional notes, questions, and addendums, to help
+  incorporate the foreign material into our own thinking.
+
+  The notes one takes about some literature should be stored separate
+  from the slipbox (/I'm not adhering to this?/). After finishing, one
+  can go back over those notes and write permanent notes connecting
+  new ideas to the slipbox. The level of detail for these notes can
+  vary based on what we take away from the text, the complexity of the
+  text, and what we need the information for.
+
+  Literature notes serve as the starting point for synthesizing
+  permanent notes. In the permanent notes, it's useful to ruminate on
+  the context, methods, and approaches the literature presents in
+  addition to the material. (Seems like this will take practice... and
+  these should all be literature notes...)
+
+  Confirmation bias runs contrary to this principle - as humans we
+  inherently gravitate towards people and ideas that agree with what
+  we already believe. As a writing tool, the slipbox process
+  inherently avoids this. Instead of picking an idea and searching for
+  evidence to support it, we collect evidence and ideas into the
+  slipbox and write what about is supported.
+
+  The most important goal is adding to the slipbox, which extends our
+  understanding of /something/ by definition. This requires
+  distinguishing relevant information from the rest - as the book puts
+  it, getting the gist of information. The better you are at this, the
+  denser your notes are. We want to be able to pick out what is
+  important under our own guidance, not just from another's
+  authority. Why? Doing so ensures we truly understand what is
+  important, similar to how we want to restate things in our own words.
+
+  Our understanding must be tested to verify that we do, indeed,
+  understand what we've read. One such test is, again, restating ideas
+  in our own words. Rereading and reviewing information over and over
+  again is NOT conducive to actual understanding. Elaboration, on the
+  other hand, meaning the act of thinking about the information and
+  how it relates to and extends what we already know, /is/ beneficial.
+
+  All in all, the slipbox contains details, while the brain
+  seeks understanding of the gist of things, and connecting new
+  information to the already known.
+
+* Take Smart Notes  
+  :PROPERTIES:
+  :ID:       860b03be-b931-45aa-8daf-1629ddb4a628
+  :END:
+  Important to creating connections is understanding readings in
+  context - what's not written is just as important as what is. We
+  should also be cognizant of how information and ideas relate to a
+  greater whole, and how they apply in other contexts. Therefore, when
+  notetaking, we want to note down the main ideas, our thoughts on
+  them, and how they connect to other bits of knowlege, instead of
+  just quoting everything, This is, unsurprisingly, our slipbox
+  process.
+
+  Setting goals for writing notes is much more doable than setting
+  goals for writing in general.
+
+  When taking notes for the box, a good way to do so is to ask the
+  question: "why is this important to my own thoughts?" Or in other
+  words, "why do I find this interesting?" (Does this hold for notes
+  about more empirical things like programming? Yes - texts like that tend
+  to be interesting because I want to put them to use)
+
+  For example, after reading, I might write something like "the Common
+  Lisp Object System implements object oriented programming
+  differently than one sees in Python or Java - the differences make
+  CLOS a more effective tool in many domains, for example, collision
+  detection." This gives rise to questions like "what features
+  differ," "what other domains," etc. etc.
+
+  We want to externalize our thinking and consciously build a network
+  of ideas (think like network science: add connections that reduce
+  the distance between ideas when appropriate). To aid with recall, we
+  want to connect information to /meaningful/ contexts, rather than
+  something like the room in which we learned something.
+
+  To summarize: first, understand the information (be sure to
+  write!). Then, understand the information in context (again, be sure
+  to write!). Place this in the slipbox.
+
+* Develop Ideas
+  :PROPERTIES:
+  :ID:       ad0b8d32-3e26-4374-ae92-1810d8e31df1
+  :END:
+
+  Once the slipbox is established, new notes should be written with
+  reference to existing notes. These references create a loose
+  ordering - in a real pen-and-paper setup, we'd put such notes in
+  sequence; however, with our Emacs setup, we don't have to do
+  that. The index handles all the backlinks.
+
+  To ensure we can find notes again, we have an *index* note that
+  links to entrypoints for each topic, along with tags. The entrypoint
+  can be a note giving an overview of our current understanding of the
+  topic, with further links to concrete notes. This note can be
+  updated once our understanding evolves.
+
+  When picking keywords for a note, one should try to assign words we
+  want to associate with it on retrieval. This can generate more
+  insights when other notes come up with the same keyword search.
+  This means that you should pick keywords with respect to your own
+  thoughts and in the context of other ideas rather than in isolation.
+
+  Emphasizing the links between notes can help the user find
+  connections between seemingly disparate ideas.
+
+  Sometimes we have an idea, but, on further reflection (read: looking
+  at the slipbox), we realize it's the same as someone else's idea. No
+  problem - we can note that down, or, if our idea is different, we
+  can note the difference. By comparing notes, we can battle test our
+  slipbox while also checking our thinking, allowing us to improve our
+  box over time.
+
+  The principle behind the slipbox is similar to flashcards. Both have
+  the user recall information at irregular intervals, which aids in
+  further connection and recall later. The slipbox has the advantage
+  in that it puts these bits of information in context, given the
+  processes of linking and tagging our notes. These connections form a
+  mental model(??)
+
+  Having a snowball of notes and a mental model makes spotting
+  possibilities for insights easier. Having a slipbox lets us avoid
+  unrelentingly focusing on the matter at hand (proven to be
+  unproductive?) and instead allowing us to let an idea slowly emerge.
+
+  The slipbox provides us a tool for abstraction. Abstractions like:
+  Theory of evolution - instead of being completely focused on one
+  species, such as Darwin's Finches, we have a theory that encompasses
+  the entire natural world. Story archetypes are another example - the
+  hero's journey crops up in many stories, not just one. More ideas
+  will spring up when we break the habit of digging in to one
+  particular thread. Furthermore, it's important to consider what's
+  not being said when reading.
+
+  Restrictions on notes help. The original slipboxer used quarter
+  cards; we should strive for similar when using digital (something
+  like 1 screenful per note?). We also standardize (or should be
+  standardizing) literature notes: on page /x/ it says /y/ (really,
+  that simple?). These restrictions make assembling notes in different
+  ways easier - smaller chunks are easier to rearrange, and simple
+  literature notes are easier to assemble into permanent notes.
+
+* Share Your Insight
+  :PROPERTIES:
+  :ID:       518a6cfc-3dcb-4ab7-93d6-ef0957853666
+  :END:
+
+  - Read phase: understand within author's context
+  - Slipbox phase: understand within greater context and that of your
+    own thoughts
+  - Write phase: narrow context to one topic and develop argument
+
+  Instead of brainstorming, we now look through our box to find a coherent topic
+  to write about. We've already done the storming part by surveying the field
+  and writing about it, now we just have to collect and prune.
+  

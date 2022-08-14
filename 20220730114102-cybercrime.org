@@ -1,0 +1,64 @@
+:PROPERTIES:
+:ID:       2cacd954-d213-4413-8166-64bb30cb7304
+:END:
+#+title: Cybercrime
+* Cybercrime: The Actors
+  - Exploit Devs: make the exploits, reverse engineer software
+  - Botnet Masters: develop software and control botnets for hire
+  - Spammers: Advertise links for other actors
+  - Phishers: Set up phishing sites, work with spammers to spread evil sites
+  - Counterfeiters: Sell fake goods, get money from legit credit cards
+  - Bulletproof hosting providers: Offer dedicated servers for evil
+  - Carders, Cashiers, Mules: Turn stolen bank accounts and credit cards to cash
+  - Crowdturfers: creates, verify, and manage fake accounts. Solve CAPTCHAs for
+    money.
+* Structure
+  - Botnets are used for everything - spam, bitcoin mining, DDOS, account theft,
+    etc.
+  - Spam is used by phishers, counterfeiters, and malware to spread exploits and
+    gain money
+  - Carders and cashiers get this money into a usable state.
+* Exploit as a service
+  - Decouples monetization and compromise
+  - Exploit devs sell their exploits
+  - Other actors use these to attack hosts
+  - Compromised hosts are then sold
+
+  - Attackers can either buy the exploit and deploy it themselves, or rent an
+    exploit server that hosts the exploit kit.
+
+  - Attackers must direct traffic to exploit via phishing or spam themselves
+  - Traffic Pay Per Install (PPI): Bundles traffic acquisition mechanism as well.
+* Surface/Deep/Darkweb
+  - Surface: indexed on search engines
+  - Deep: NOT indexed on standard search engines
+  - Dark: Content in the Deep Web
+* Botnet Command and Control
+** Centralized Control
+   - Botnet master tells control servers to tell bots to send spam.
+   - Efficient
+   - Problem: single point of failure, easy to target
+** P2P Botnet
+   - Botnet master tells control servers to insert command into the distributed
+     hash table
+   - Bots read the command from the hash table and start sending spam
+   - More robust, but no direct control over bots
+** Fast Flux DNS
+   - All bots connect to C&C website
+     - This is efficient!
+   - Website can be mapped to different IPs and moved to different servers
+   - DNS to IP mapping can be changed
+   - However: domain name can still be blocked by ISPs
+** Random Domain Generation
+   - Bots generate large number of random domain names every day
+   - Botmaster knows the random domain names of the day because they use the
+     same seed and algorithm
+   - Botmaster registers only a few of the random names.
+   - These sites can be used with fast flux to change IPs every 10s
+* Spam
+  - Irrelevant and/or inappropriate content with a large number of recipients
+  - Send email for other actors for a fee
+  - Used to spread phishing sites, acquire traffic for PPI, get emails
+  - Spammers rent botnet access to send spam
+  - Spam has low conversion rate due to spam filters
+

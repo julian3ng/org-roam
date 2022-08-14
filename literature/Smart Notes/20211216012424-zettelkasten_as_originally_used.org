@@ -1,0 +1,14 @@
+:PROPERTIES:
+:ID:       2925a105-9084-41cf-92d5-b6eb4eabca61
+:END:
+#+title: Zettelkasten, as originally used
+* Niklas Luhmann's process
+  - Originally, there were bibliographical notes and brief
+    notes. Bibliographical notes would have the citation details and
+    a short note of the content. Brief notes were where thoughts on
+    the material were condensed and linked to other contexts.
+  - Notes that follow others in some way would be directly behind
+    and notated so via the id (not relevant due to org-roam)
+  - !!! When adding a note, /review other notes/ to find places they
+    should be linked !!!
+    - This helps enforce the context of the ideas.

@@ -1,0 +1,81 @@
+:PROPERTIES:
+:ID:       3fe08c66-ca54-4fbb-af69-2604763298c1
+:END:
+#+title: Entity Relationship Model
+* Entity Relationship Model
+  This is an example of a high level data model, which deals with concepts and
+  relationships rather than the logical or physical layout of data. It is useful
+  for mapping out the requirements of more complex database schemas. The model
+  enables *classification* (picking types of), *association* (relating),
+  *instantiation* (looking at individual), and *identification* (uniquely
+  labeling) entities, while its enhancement, the [[id:c1e04c0a-95fe-446a-ad53-c2a4a7ce8528][Enhanced Entity Relationshp
+  Model]], adds *specialization* and *generalization* with inheritance.
+
+** Designing with the ER Model
+   *) Note that this is an iterative process, so steps will often feed back on
+      one another.
+   1) First, we must collect requirements from users. This gives us both the
+      types of entities, their attributes, and the relations between them, also
+      known as the *data requirements*; and the operations desired, or the
+      *functional requirements*.
+   2) Create the conceptual schema using the conceptual data model (the ER
+      model). We can check this model against the users' requirements without
+      getting caught up in the details of table layout and storage.
+   3) Create the implementation data model from the conceputual data model,
+      giving us the logical design of the database.
+   4) Create the internals of the database - the file organization, what indices
+      to use, access paths, etc.
+   
+** ER Model Concepts
+   | Concept                  | Representation                   | Meaning                                                  |
+   |--------------------------+----------------------------------+----------------------------------------------------------|
+   | Entity                   | Rectangle                        | An object from the real world                            |
+   | Attribute                | Oval                             | Some property of an Entity                               |
+   | Relation                 | Diamond                          | An association between two or more Entities              |
+   |--------------------------+----------------------------------+----------------------------------------------------------|
+   | Composite Attribute      | Oval with sub-ovals              | A property that has usable individual parts              |
+   | Multivalue Attribute     | Double Oval                      | A property that can have several values                  |
+   | Derived Attribute        | Dotted Oval                      | A property created from other properties                 |
+   | Key Constraint           | Underline Attribute Title        | A property whose values are all unique in the entity set |
+   |--------------------------+----------------------------------+----------------------------------------------------------|
+   | Cardinality Ratio        | Numbers over Relation arms       | X:Y means X on the first can map to Y on the second      |
+   | Min/Max Notation         | (min,max) over Relation arms     | Denotes the minimum and maximum relations for an entity  |
+   | Participation Constraint | Double Lines = Total             | Total: all entities must participate in relation         |
+   |--------------------------+----------------------------------+----------------------------------------------------------|
+   | Weak Entity Type         | Double Rectangle                 | Entity whose existence depends on another entity         |
+   | Identifying Relationship | Double Diamond                   | Relates Weak Entity to the other                         |
+   | Partial Key              | Dashed Underline Attribute Title | Acts as Key for Weak Entity with other attributes        |
+
+   - =NULL= can be used to represent inapplicable attributes, missing values,
+     and unknown values. Having inapplicables is a design flaw though, so we
+     should try to avoid that situation.
+   - Multivalued attributes can be represented in text between curly braces {}
+   - Composite attributes can be represented in text between parentheses ()
+   - *Entity Type*, or *intension* is the set of entities with the same
+     attributes
+   - *Entity Set*, or *extension*, is the actual set of entities with an entity
+     type in the database. It is often referred to by the same name as the
+     corresponding entity type.
+   - *Value Set*, or *domain*, is the set of values an attribute can take on.
+   - *Relationship Type* defines a set of associations among entities from their
+     entity types.
+   - *Relationship Set* is the subset of all relationship instances $R \subseteq
+     E_1 \times E_2 \times \cdots \times E_n$
+   - *Relationship Degree*, or *arity*, is the number of entity types
+     participating in the relation ($n$, above)
+   - A *Role Name* defines the participants in a relationship - only necessary
+     in a *recursive/self-referential relationship*.
+   - A *Recursive/Self-Referential Relationship* is a relationship from an
+     entity type to itself.
+   - *Cardinality Ratio* and *Participation Constraints* together form a
+     relationship's *Structural Constraints*
+   - Relationship attributes, when the relation is 1:N, can be attached to the N
+     side. In the M:N case, we need to make the relationship into an entity, and
+     attach the attribute to that entity.
+   - A *Weak Entity Type* defines entities that have no key by themselves, and
+     are instead identified by way of relating to one or more strong entities,
+     whose types are known as the *Identifying/Owner Entity Eypt*.
+   - Cardinality Ratios in n-ary relations work similarly: for example, a 1:M:N
+     ternary relation constrains triples $(i,j,k)$ such that all pairs $(j,k)$
+     uniquely specify some $i$, while $(i,j)$ and $(i,k)$ can have multiple $k$
+     and $j$, respectively.

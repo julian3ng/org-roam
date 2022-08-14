@@ -8,10 +8,10 @@
     email regex, earliest birthday, or hometown in US requirement are all
     examples.
   - Operations: actions on a database table - add/delete/get a row.
-    - There are two kinds of operations:
-      1) Algebra
-      2) Calculus - there are two kinds of calculus:
-         1) Tuple Calculus, aka SQL, represented by tuples of relations
+    - There are modeled by two kinds of operations:
+      1) [[id:866e763c-17c2-4eec-9653-59002171068c][Relational Algebra]]
+      2) [[id:3a600e70-d438-451b-9071-b72c0cfd6355][Relational Calculus]] - there are two kinds of calculus:
+         1) Tuple Calculus, aka [[id:5d76316f-55f0-4dbf-b755-1e188b3a677d][SQL]], represented by tuples of relations
          2) Domain Calculus, aka QBE, represented by cells of domains (or types)
 
   - More formally, the data structure of the relational model is just the

@@ -1,0 +1,40 @@
+:PROPERTIES:
+:ID:       e4eca592-4f5c-4414-9e47-c3736938007a
+:END:
+#+title: Notetaking per The Book
+* Notetaking 101
+  1) Fleeting notes: have something to write on all the time! A
+     notebook, a napkin, an org mode buffer, whatever. We will munge
+     these later. These are for throwing away!
+  2) Literature notes: when reading something, write down what you
+     want to take away from it. Keep it short and don't just quote
+     without understanding. We will file these in a reference section.
+  3) Permanent notes: The meat of the slipbox. Go through your
+     fleeting notes and literature notes (ideally daily) and collect
+     ideas that relate to your learnings.
+     - Ask yourself:
+       - Does this information agree, diasgree, correct, support,
+         etc. with existing notes?
+       - Can you synthesize new ideas with this new information in
+         conjunction with the rest of your notes?
+       - Do these new ideas raise additional quesetions?
+  4) File your permanent notes: add links to and from relevant notes,
+     and link to a topic index or main discussion note
+  5) Build on what you have: grow topics, create more questions,
+     investigate research projects that arise from your slipbox.
+     /Don't try to come up with ideas out of the blue./ Instead, look
+     into the slipbox and see what directions interest you.
+  6) Begin papering: collect notes on a particular topic you want to
+     write about, arrange them in a logical order (aided by what you
+     already have), then identify and correct missing information and
+     redundancies.
+  7) Rough draft: based on your notes, assemble your rough draft. This
+     requires polishing and translating your notes further to make
+     them presentable, and piecing them together in a way that
+     supports your argument.
+  8) Edit and proofread your way to your final draft.
+* You won't work on only one thing at a time like this
+  - In reality, you'll have multiple pieces in flight at a time due to
+    the way your notes are being conglomerated. One paper may be in
+    infancy while you're finishing a rough draft of another and
+    sending yet another off to editors.

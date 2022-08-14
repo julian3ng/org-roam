@@ -1,0 +1,88 @@
+:PROPERTIES:
+:ID:       19ce83f2-fc50-4601-abf2-1d1b905109b6
+:END:
+#+title: Hash Functions
+* Hash Function
+  Informally, a hash function compresses long inputs into short outputs. A
+  "good" hash function does this in a way that is a) hard to reverse (one
+  wayness) and b) hard to find two inputs that give the same output
+  (collision-resistant).
+  
+** TODO Collision Resistance
+   Formally, collision resistance is defined as follows:
+
+   Let $H: \{0, 1\}^K \times D \to \{0, 1\}^n$ be a function family *(why the
+   K?)*
+
+   \(K \xleftarrow{\$} \{0, 1\}^k\)
+
+   The adversary is given $K$ and wants to output $x$ and $x'$ such that $H(x) =
+   H(x')$ but $x \neq x'$.
+
+   The advantage $Adv_H^{CR}(\mathcal{A}) = P(H(K, x) = H(K, x'))$
+   
+*** Example
+    $H_K(X_1X_2) = AES_K(X_1) \oplus AES_K(X_2)$
+
+    Our adversary yields $0^{128}1^{128}$ and $1^{128}0^{128}$. Obviously, $H_K$
+    will be equal on these inputs due to the commutativity of xor, creating a
+    collision.
+
+*** Making Collision Resistance from Other CR Functions
+    The *Merkle-Damgård Transform* allows us to make CR functions from other CR
+    functions.
+
+    Given a compression function $h: \{0, 1\}^k \times \{0, 1\}^{b + n} \to \{0,
+    1\}^n$:
+
+    We can build $H: \{0, 1\}^k + D \to \{0, 1\}^n$ as follows:
+
+    #+begin_src text
+      if m % b == 0:
+          m = len(M)//b
+      else:
+          m = len(M)//b + 1
+
+      v = 0^n
+
+      for i in range(1, m+1):
+          v = h_k(M[i]||v)
+
+      v = h_k(m||v)
+    #+end_src
+
+    
+** One Wayness
+   For some hash $y$ and key $K$, it is infeasible to find some $x$ such that
+   $H_K(x) = y$.
+
+   Formally:
+
+   We have an adversary that gets $K, y = H(K, x)$.
+
+   This adversary tries to output $x'$ such that $H(K, x) = H(K, x')$.
+
+   The $Adv_H^{OW}(\mathcal{A}) = P(H(K, x') = y)$
+
+** Relation between One Wayness and Collision Resistance
+   - CR implies OW for compressing functions only
+   - OW doesnot imply CR at all.
+   
+** HMAC: how to create a MAC from a hash function
+   To build [[id:3adad90a-d79f-4dcc-91ff-aa047dd36574][Authenticity]] from a hash function:
+
+   - $H: D \to \{0, 1}^n$
+   - $K$ is $n$ bits
+   - $B \geq n/8$ is the block length
+   - $opad = 0x5C$ repeated
+   - $ipad = 0x36$ repeated
+   - $K_o = opad \oplus K||0^{8B-n}$ (pad $K$ to $8B$ bits)
+   - $K_i = ipad \oplus K||0^{8B-n}$
+
+   Then, we have:
+
+   $HMAC_K(M) = H(K_o||H(K_i||M))$
+
+   This is fast and easy, and is used as a MAC and a PRF.
+
+   *HMAC is a PRF when H is a PRF*

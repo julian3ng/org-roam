@@ -1,0 +1,54 @@
+:PROPERTIES:
+:ID:       68f75ded-cdb1-45e6-bbe7-0b908dc4722e
+:END:
+#+title: One Time Pad
+* One Time Pad
+  The One Time Pad is an example of a perfect encryption scheme. Unfortunately,
+  the unwieldiness of the key makes it a poor choice for practical usage. It is,
+  however, very simple.
+
+  - $MsgSp = \{0, 1\}^n$
+  - $KeySp = \{0, 1\}^n$ - a key is picked uniformly at random.
+  - $E(K, M) = C \leftarrow K \oplus M$
+  - $D(K, C) = M \leftarrow K \oplus C$
+
+  Aside: this works because $k \oplus k = 0$, covering the encryption and
+  decryption phases together, and $m \oplus 0 = m$.
+
+** Proof of Security
+   1) Fix any ciphertext $C \in \{0, 1\}^n$
+   2) By the definition of the encryption algorithm, we have that for all $M$,
+      $P[E(K, M) = C] = P[K \oplus M = C] = P[K \oplus (M \oplus M) = C \oplus
+      M] = P[K = C \oplus M]$
+   3) $K$ is chosen at random from $2^n$ possible keys (the size of the key
+      space), so $P[K = C \oplus M] = \frac{1}{2^n}$
+   4) This holds for every $M$, so for any ciphertext, all $M$s are equally
+      likely to emit from decrypting $C$.
+     
+** Shannon's Theorem (Optimality of One Time Pads)
+   Goal: if a scheme $(K, E, D)$ is Shannon secure, then $|KeySp|$ can't be smaller than
+   $|MsgSp|$.
+   
+   1) Fix $C$ by picking $M$ and $K$. $C = E(K, M)$.
+      - Across all $K$, $P[E(K, M) = C] > 0$ because of the construction of $C$.
+   2) Assume that there exists $M_2$ such that $\forall K, P[D(K, C) = M_2] = 0$
+      - This implies that $C$ never decrypts to $M_2$.
+      - This also implies that the message space is larger than the key space.
+   3) By the correctness of symmetric encryption, (2) means that $\forall K,
+      P[E(K, M_2) = C] = 0$.
+   4) *CONTRADICTION*: This scheme is Shannon secure, but $P[E(K, M) = C] \neq
+      P[E(K, M_2) = C]$.
+   5) Therefore, our assumption that such an $M_2$ exists is false, and we have:
+      $\forall M_2 \in MsgSp,\, \exists K' \;.\; D(K', C) = M_2$.
+   6) Furthermore, we have $|KeySp| \geq |MsgSp|$ because there can't be any
+      messages that can't be encrypted to a ciphertext by a key.
+
+   As a consequence of Shannon's Theorem, we know that the
+   information-theoretic approach to cryptography is impractical. Instead, we
+   relax the need for perfect security and guarantee security for X number of
+   years under certain computational bounds. This is known as
+   *computational-complexity cryptography*. This approach assumes the existence
+   of computationally hard problems, and requires keys to remain secret.
+
+   
+

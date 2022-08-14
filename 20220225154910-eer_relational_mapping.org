@@ -1,0 +1,201 @@
+:PROPERTIES:
+:ID:       0cd61009-5673-4cd2-9fb7-1a435af3bdba
+:END:
+#+title: EER Relational Mapping
+* EER Relational Mapping
+  This process converts an EER diagram into a concrete set of relations, keeping
+  concepts like keys, disjoint inheritance, and so on, intact.
+
+  To map an EER diagram, we first follow the seven-step process for mapping a
+  normal ER diagram, then we take care of any inheritance mappings.
+
+** 1) Map Regular Entity Types
+   For each regular entity type $E$ with properties $P_1 \ldots P_N$, create a
+   relation $R$ with all the simple attributes of $E$. Compound attributes
+   should be included by decomposing them into their simple attributes.
+
+   For instance, if we have $E$ with properties $C, D$ with $C$ having
+   subproperties $E, F$, the final relation would be as follows:
+
+   $E$
+   |-----+-----+-----|
+   | D   | E   | F   |
+   |-----+-----+-----|
+   | ... | ... | ... |
+   |-----+-----+-----|
+
+   Choose a key attribute of $E$ to use as the key attribute of $R$. If that
+   attribute is a compound, decompose it as before -- the key will be all the
+   parts together.
+
+** 2) Map Weak Entity Types
+   For each weak entity type $W$ with owner type $E$, create a relation $R$ with
+   all the simple attributes and decomposed compound attributes of $W$.
+
+   Include the primary key attributes of the owner $E$ as foreign key attributes
+   of $R$. The foreign key attributes in addition to any partial key attributes
+   of $W$ together make the primary key of $R$.
+
+   For example:
+   - $W$ is a weak entity owned by $E$.
+   - $E$ has key attribute $A$ and normal attribute $B$
+   - $W$ has partial key $C$ and normal attribute $D$
+
+   $E$
+   |-----+---|
+   | _A_ | B |
+   |-----+---|
+
+   $W$ (DO NOT INCLUDE B FROM ABOVE! THIS ISN'T INHERITANCE)
+   |-----+-----+---|
+   | _A_ | _C_ | D |
+   |-----+-----+---|
+
+** 3) Map Binary 1-1 Relationships
+   For each binary 1-1 relationship $R$ in the EER with participating entity types
+   $S$ and $T$, there are three ways to create appropriate mappings.
+
+   1) Foreign Key (default): pick either $S$ or $T$ and include the primary key of the
+      other in it as a foreign key. If one side of the relationship has total
+      participation (say, every $S$ must be related to a $T$), then that side
+      should have the foreign key. Any attributes of $R$ should also go with the
+      type that has the foreign key.
+   2) Merge $S$ and $T$: we can do this if both sides have total participation,
+      i.e. every member of $S$ has a unique corresponding $T$ and vice versa.
+   3) Relationship Relation: Make a new relation $R$ that has foreign keys to
+      the primary keys from both $S$ and from $T$. In this case, the primary key
+      of $R$ will be one of the foreign keys, with the other being a unique key.
+
+
+   For example, with $R(S, T)$ with $S$ having key $K$ and $T$ having key $L$,
+   and $S$ having total participation:
+
+   $S$
+   |-----+---|
+   | _K_ | L |
+   |-----+---|
+
+   $T$
+   |-----|
+   | _L_ |
+   |-----|
+   
+** 4) Map Binary 1-N Relationships
+   Once again we have relationship $R$ between entity types $S$ and $T$.
+
+   1) Foreign Key (default): the same technique as in a 1-1 relationship
+      mapping, but the foreign key must reside in the N side of the relationship
+      because the 1 side will participate in multiple relationships. For
+      example, if an $S$ can have at most one $T$, but a $T$ can have multiple
+      $S$, then the foreign key should be with the $S$ instances. Like above,
+      any relationship attributes of $R$ should go with the foreign key.
+   2) Relationship Relation: once again, we can make a relationship
+      relation $R$. With $S$ as the N side, $R$'s foreign key to $S$ will be the
+      primary key for $R$. $T$'s primary key can't be unique in $R$ any more, as
+      a $T$ instance can participate in many relations.
+
+** 5) Map Binary M-N Relationships
+   Given relationship $R$ between entity types $S$ and $T$, we can only use the
+   relationship relation method.
+
+   In the new relation $R$, we have as foreign keys the primary keys of $S$ and
+   $T$. The combination of those foreign keys is the primary key of $R$. Any
+   attributes of the EER relationship $R$ also become attributes in the new
+   relation.
+
+   Given $R(S, T)$ as an M-N relationship with $S$ having key $K$ and $T$ having key
+   $L$:
+
+   $R$
+   |-----+-----+-------|
+   | _K_ | _L_ | attrs |
+   |-----+-----+-------|
+
+** 6) Map Multivalued Attributes
+   For every multivalued attribute $A$ of entity type $E$, create a relation $R$
+   with foreign key being the primary key of $E$, and an attribute corresponding
+   to $A$. The primary key of $R$ is the combination of the key and the
+   attribute.
+
+   Given entity type $E$ with primary key $K$ and multivalue attribute $A$
+   taking on values from $\{x, y, z\}$, we can have this table:
+
+
+   $A$
+   |-----+-----|
+   | _K_ | _A_ |
+   |   1 | x   |
+   |   1 | y   |
+   |   2 | x   |
+   |   2 | y   |
+   |   2 | z   |
+   |-----+-----|
+
+   ... which represents an $E$ with $K = 1$ and $A = \{x, y\}$, and an $E$ with
+   $K = 2$ and $A = \{x, y, z\}$.
+   
+** 7) Map N-ary Relationship Types
+   When there are more than 2 entity types involved in a relationship, we need
+   to use the relationship relation technique. Create a new relation $R$ with
+   foreign keys for each primary key of the entity types involved; depending on
+   each type's cardinality ratio, the foreign key may be unique.
+
+** 8) Map Specialization and Generalization
+   Given entity type $C$ with attributes $\{k, a_1, \ldots, a_n\}$ (key is $k$)
+   specialized by types $S_1 \ldots S_n$, we have two options for mapping this
+   pattern into relations -- use a single relation, or use multiple relations.
+   
+   - Multiple Relations, Include Superclass: create relation $L$ with primary
+     key $k$ and attributes $a_1$ through $a_n$. Create relations $L_i$ for each
+     subclass $S_i$ with primary key $k$ (same as the superclass's relation) and
+     the attributes of $S_i$. This will work for any type of specialization,
+     depending on the constraints we place on the keys of each $L_i$.
+     - To recover all attributes for tuples of $L_i$, an equijoin between $L$
+       and $L_i$ on key $k$ would work.
+     
+   - Multiple Relations: for each subclass $S_i$ create relation $L_i$ with
+     primary key $k$ and the attributes of $C$ and $S_i$. This works well only
+     for disjoint subclasses, otherwise we get duplication of the $C$ attributes
+     across different $S_i$ and $S_j$. Furthermore, this only works for /total/
+     specializations, otherwise we end up with tuples with no relation $L_i$ to
+     go to.
+
+   - Single Relation, One Type Attribute: create relation $L$ with all
+     attributes of $C$, all attributes of all $S_i$, primary key $k$, and type
+     attribute $t$. $t$ is the *type discriminating* attribute determines the
+     type of each tuple, and which attributes should be non-NULL. This technique
+     creates a ton of NULLs for every type the tuple is not.
+
+   - Single relation, Multiple Type Attributes: create relation $L$ with all
+     atributes of $C$, all attributes of all $S_i$, primary key $k$, and type
+     attributes $t_i$ for all $i$. Each $t_i$ denotes whether or not a tuple is
+     of type $S_i$, which allows for non-disjoint specializations.
+
+***  Map Shared Subclasses
+   Given superclasses $C$ and $D$ with the same key attribute $k$ and shared
+   subclass $S$, we can use the techniques of step (8) to map $S$ to relations.
+
+   For example, using the third technique, we can have $L$ with all attributes
+   of $C$, all attributes of $D$, all attributes of $S$, shared key $k$, and
+   type parameter $t$.
+
+** 9) Map Categories (Union Types)
+   Recall that a union type is subclass of the union of two or more superclasses
+   that can be different entity types. For example, an =Owner= is a subclass of
+   one of =Person=, =Bank=, or =Company=.
+
+   Let $C$ and $D$ be superclasses and $S$ be the subclass of their union. To
+   map $S$:
+   
+     - Create relation $L$ with:
+       - Surrogate key $k$
+       - Attributes of $S$
+       - Type attribute $t$
+     - Create relations $M$ and $N$ for superclasses $C$ and $D$ with:
+       - All their keys and attributes
+       - Foreign key $k$ to relation $L$'s surrogate key
+
+
+     We need surrogate key $k$ because the tuples of $L$ may not be of the same
+     entity type, so the keys of $C$ and $D$ wouldn't suffice. If all the
+     superclasses do share a key, then the surrogate key is not required.

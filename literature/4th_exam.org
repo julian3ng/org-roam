@@ -1,0 +1,332 @@
+* 14.1: Good and Bad Relation Schemas
+  Informal guidelines for the quality of a schema are as follows:
+** Semantics of attributes should be clear in the schema
+   We should be able to tell the meaning of a database from its design.
+
+   Keep relations specific to one concept; don't put multiple entities or
+   relationships in the same table.
+** Redundant information should be reduced
+   Goal: reduce space used by the database
+
+   For example, storing department data with employee data would cause
+   duplicates of department data for every employee working in the same
+   department.
+
+   Storing natural joins (like employees with departments) causes *update
+   anomalies*
+   - Insertion anomalies: inserting an employee with no department or a
+     department with no employees will cause unnecessary NULLs and waste
+     storage. Furthermore, if the primary key is associated with the employee,
+     we can't store a department with no employees because said key would be
+     NULL.
+   - Deletion anomalies: deleting the last employee will run into the above
+     problem
+   - Update anomalies: updating a property of the department would require
+     updating the properties of all its employees as well.
+
+   Guideline 2: Design to avoid anomalies, and note them if they cannot be
+   avoided for whatever reason. Violations tend to be to improve performance.
+     
+** NULL values should be reduced
+   Guideline 3: When possible, avoid having properties that are NULL more often than not.
+
+   Don't have some property that only applies to 15% of rows. Instead, create a
+   relation for rows having that property.
+   
+** Spurious tuples should be impossible to create
+   Guideline 4: Design tables so that joins happen on primary or foreign
+   keys. Joining on non-primary or non-foreign keys can cause spurious tuples /
+   data that is not valid.
+
+  
+* 14.2: Functional Dependencies
+  Definition:
+
+  Let our schema have $n$ attributes $A_1$ to $A_n$, and have the database be
+  described by a single universal relation $R = \{A_1, A_2, \dotsc, A_n\}$.
+
+  A *functional dependency*, denoted $X \to Y$, between two sets of attributes
+  $X$ and $Y$ that are subsets of $R$ specifies a constraint on the possible
+  tuples that can be a state $r$ of $R$. The constraint is that for any two
+  tuples $t_1$ and $t_2$ in $r$ that have $t_1[X] = t_2[X]$, $t_1[Y] = t_2[Y]$.
+
+  i.e. the values of the $X$ component determine the values of the $Y$
+  component.
+
+  $X$ is the *left-hand side* of the functional dependency, and $Y$ is the
+  *right-hand side*.
+
+  $X$ is a *candidate key* if there is another constraint saying there can only
+  be one $X$-value on a given tuple $r$ of $R$
+
+  Database designers will specify what functional dependendices should hold for
+  all states of $R$; these are known as the *legal relation states* or *legal
+  extensions* of $R$.
+
+  Functional dependencies are properties of $R$, not of the state $r$ of
+  $R$. This means one can't divine the constraints from some state.
+
+  Functional dependencies are denoted by $F$, and may not include /all/
+  dependencies that appear in practice. Many can be inferred by the explicitly
+  given constraints.
+
+* 14.3: Normal Forms Based on Primary Keys
+  Given a set of functional dependencies and primary keys for each relation, we
+  can create a normalized form for the relations.
+
+  The *normal form* of a relation refers to the highest normal form condition
+  that it meets.
+
+  Normalization by itself doesn't guarantee that the schema is good - we must
+  have additional properties, such as:
+
+  1) Nonadditive join / lossless join property: joins don't create tuples that
+     don't actually exist.
+  2) Dependency preservation property: all functional dependencies are
+     represented in individual relations after normalization.
+
+
+  We can sacrifice (2), but we must keep (1) at all costs.
+
+  Higher normal forms like 4NF and 5NF exist, but are less often used due to the
+  rarity of the constraints that they are based on. Sometimes we want to use a
+  lower normal form for performance reasons; this is called denormalization
+  (storing a join of higher normal formed relations).
+
+  *Superkey*: a superkey of $R = \{A_1, A_2, \dotsc, A_n\}$ is a set of
+   attributes $S \subseteq R$ such that no two tuples $t_1, t_2$ in any legal
+   state $r$ of $R$ will have $t_1[S] = t_2[S]$.
+
+  *Key*: a key is some superkey with the additional property that removing any
+  attribute from it will cause it not to be a superkey.
+
+  *Candidate Key*: if there are multiple keys, each is a candidate key.
+
+  *Primary Key*: one candidate key can be chosen arbitrarily to be the primary
+   key of a relation.
+
+  *Prime Attribute*: an attribute is prime if it participates in any candidate
+   key.
+   
+** 1NF: Values Must Be Atoms
+   We can't have sets of values or tuples of values as the value of a single
+   attribute in a tuple.
+
+   How to fix:
+   1) Split off the nonatomic attribute into a new table combined with the
+      primary key from the old table. The key for the new table will be the
+      primary key plus the nonatomic attribute.
+   2) Add the nonatomic attribute to the key (not recommended)
+   3) If the nonatomic attribute has a maximum number $n$ of values, split the
+      nonatomic attribute into $n$ atomic attributes (creates NULLS).
+
+
+   Same thing holds for relations within tuple values. For example, say an
+   employee has a column that holds all the projects they're in. Employee number
+   is the primary key, and within the project column, project number is a
+   partial key; that is, project number must be unique per employee number.
+
+   To normalize this situation, we simply split off the project column into a
+   new relation and add the employee number. The combination of employee and
+   project number becomes the primary key of the new relation.
+   
+** 2NF: Full Functional Dependency
+   *Full Functional Dependency*: $X \to Y$ is a full functional dependency if
+   removing any attribute from $X$ breaks the dependency; that is, for $X
+   \setminus A$, there exist two tuples with the same values for attributes $X
+   \setminus A$ but different values for $Y$.
+
+   *Partial Functional Dependency*: A functional dependency is partial if we can
+   remove an attribute without breaking the dependency.
+
+   A relation is 2NF if every nonprime attribute $A$ of $R$ is fully
+   functionally dependent on the primary key of $R$.
+
+   Restated: every attribute that's not part of some candidate key must be
+   functionally dependent on the entirety of the primary key and no subsets of
+   it.
+
+   To normalize from 1NF to 2NF, we split off attributes that depend on subsets
+   of the primary key into their own relations with those subsets as the primary
+   keys.
+
+** 3NF: Transitive Dependency
+   Functional dependency $X \to Y$ is a *transitive dependency* if there exists
+   a set of attributes $Z$ in $R$ that is neither a candidate key nor subset of
+   another key in $R$, such that $X \to Z$ and $Z \to Y$ are both functional
+   dependencies.
+
+   A schema is in 3NF if it is in 2NF and no nonprime attribute of $R$ is
+   transitively dependent on the primary key.
+
+   For example: an employee must have a department, and there is a functional
+   dependency between the employee number and the department number. There is
+   also a functional dependency between the department number and the department
+   name. The department name for the employee is obviously transitively
+   functionally dependent on the employee number /through/ the employee's
+   department number.
+
+   To fix this, pull out the $Z \to Y$ dependency into its own relation with its
+   primary key being $Z$.
+
+** Summary:
+   - 1NF: no multivalued attributes or nested relations
+     - Fix: pull multivalues and nested relations out to their own table, keyed
+       by old primary key
+   - 2NF: nonkey attributes cannot be functionally dependent on strict subsets
+     of the primary key
+     - Fix: pull the dependencies out with the subset of the primary key, take
+       that subset as the primary key in the new table
+   - 3NF: nonkey attributes cannot be functionally dependent on other nonkey
+     attributes or sets thereof. Restated, nonkey attributes cannot be
+     transitively dependent on the primary key.
+     - Fix: pull the second part of the transitive dependency out, using the
+       transition attribute(s) as the primary key
+
+** Generalized 2NF
+   Relation $R$ is in 2NF if every nonprime attribute $A$ of $R$ is not
+   partially dependent on any key of $R$.
+
+   To fix: if an attribute is functionally dependent on a subset of /any/
+   candidate key, pull it out into a new relation with said subset. That subset
+   becomes the primary key of the new table.
+    
+** Generalize 3NF
+   Relation $R$ is in 3NF if whenever a nontrivial functional dependency $X \to
+   A$ holds in $R$, either:
+   - $X$ is a superkey in $R$, OR
+   - $A$ is a prime attribute in $R$
+
+   Put plainly, if any attribute that's not a key has a functional dependency on
+   an attribute that's not a superkey, that breaks 3NF
+
+   NOTE: If we pass general 3NF, then we're automatically general 2NF.
+
+** General Alternative 3NF
+   $R$ is 3NF if every nonprime attribute of $R$ satisfies:
+   - It is fully functionally dependent on every key of $R$
+   - It is nontransitively dependent on every key of $R$
+
+** Boyce-Codd Normal Form (BCNF)
+   Proposed to be simpler, but is actually stricter than 3NF.
+   If a relation is BCNF, it is 3NF, but not necessarily the other way around.
+
+   A relation schema $R$ is in BCNF if whenever a /nontrivial/ functional
+   dependency $X \to A$ holds in $R$, then $X$ is a superkey of $R$.
+
+   Note: Stronger than 3NF because we don't allow the RHS of a functional
+   dependency to be a prime attribute (part of a key)
+
+   Basically, parts of keys can't depend on things.
+
+   How to fix: move functional dependencies that don't have LHS superkeys into
+   new relations and make the LHS their primary keys; keep the LHS in the
+   previous relation too.
+
+   The only time we have $R$ being 3NF and not BCNF is when we have a functional
+   dependency from a non-superkey to a prime attribute.
+   
+** Sometimes We Can't Normalize And Preserve Functional Dependencies
+   Remember the *Nonadditive Join Property*
+
+   *NJB: Nonadditive Join Test for Binary Decompositions*: Decomposition $D =
+   \{R_1, R_2\}$ of $R$ has the lossless join property with respect to set of
+   functional dependencies $F$ of $R$ IFF either:
+   - The FD $((R_1 \cap R_2) \to (R_1 \setminus R_2))$ is in $F^{+}$ OR
+   - The FD $((R_1 \cap R_2) \to (R_2 \setminus R_1))$ is in $F^{+}$
+
+
+   The process to create a lossless join satisfying relation from a non-BCNF
+   relation schema is as follows:
+
+   Given relation $R$ with $X \subseteq R$ and $X \to A$ breaking BCNF ($X$ is
+   non-superkey, $A$ is prime attribute), split it into the two relations:
+   - $R \setminus A$
+   - $XA$
+
+     
+   If either $R \setminus A$ or $XA$ are not in BCNF, repeat the process.
+   
+** 4NF: Multivalued Dependency
+   Motivating example: say an employee works on many projects and has many
+   dependents. Projects and dependents are independent of each other. To
+   maintain this in a single relation, we would need an *all-key relation*,
+   where all attributes are keys. This creates a tuple for every
+   employee/project/dependent combination. Redundancy is a given - projects are
+   repeated for every dependent and vice versa. There are no functional
+   dependencies, which makes this BCNF.
+
+   Informally: when two or more 1:N relationships A:B and A:C are represented in
+   the same relation, a multivalued dependency may arise.
+
+   Formally: *multivalued dependency* $X \to\to Y$ on $R$ with $X$ and $Y$ subsets
+   of $R$ specifies this constraint on any state $r$ of $R$:
+
+   If any tuples $t_1, t_2$ exist on $r$ with $t_1[X] = t_2[X]$, then two tuples
+   $t_3, t_4$ (not necessarily distinct) should also exist with all of:
+   - $t_3[X] = t_4[X] = t_1[X] = t_2[X]$
+   - $t_3[Y] = t_1[Y]$ AND $t_4[Y] = t_2[Y]$
+   - $t_3[Z] = t_2[Z]$ AND $t_4[Z] = t_1[Z]$ where $Z = R \setminus (X \cup Y)$
+
+   Think of $X$ being the employee, $Y$ being the projects, and $Z$ being the
+   dependents. $Y$ and $Z$ are the ones that want to be independent.
+
+   When $X \to\to Y$, by symmetry, $X \to\to Z$ as well.
+
+   *Trivial MVD*: $Y \subseteq X$ or $X \cup Y = R$. Otherwise, it's a
+   *Nontrivial MVD*, where we may have to repeat values in tuples.
+
+   A relation schema $R$ is in 4NF with respect to a set of dependencies $F$ (of
+   multivalued dependencies and functional dependencies) if for every nontrivial
+   MVD $X \to\to Y$ in $F^{+}$, $X$ is a superkey for $R$.
+
+   Facts:
+   - All-key relations are always BCNF due to no FDs
+   - All-key relations like the employee/project/dependent relation are BCNF but
+     not 4NF because of the MVD from employee $\to\to$ project|dependent
+     
+
+   To decompose, move each part of the MVD into its own relation such that each
+   part is then a trivial MVD.
+
+   The motivating example is not in 4NF because the employee is not a
+   superkey. To fix this, make all-key relations employee|project and
+   employee|dependent which are trivial MVDs due to the $X \cup Y = R$
+   condition.
+
+** 5NF: Join Dependencies
+   *Join Dependency*, denoted $JD(R_1, R_2, \dotsc, R_n)$ on relation schema $R$
+   specifies a constraint on states $r$ of $R$. The constraint is that all $r$s
+   should have a nonadditive join decomposition into $R_1, R_2, \dotsc, R_n$.
+   Thus, for every such $r$, we have $(\pi_{R_1}(r), \pi_{R_2}(r), \dotsc,
+   \pi_{R_n}(r)) = r$
+
+   An MVD is a join dependency with $n=2$. Specifically, $JD(R_1, R_2)$ implies
+   an MVD $(R_1 \cap R_2) \to\to (R_1 - R_2)|(R_2 - R_1)$
+
+   A *trivial JD* has some $R_i = R$.
+
+   A relation schema $R$ is in 5NF with respect to a set of functional,
+   multivalued, and join dependencies $F$ if for every nontrivial join
+   dependency $JD(R_1, R_2, \dotsc, R_n)$ in $F^{+}$, every $R_i$ is a superkey
+   of $R$.
+
+   Example) Say we have suppliers, parts, and projects, and this constraint:
+   - If a supplier $s$ supplies a part $p$, a project $j$ uses that part $p$,
+     and $s$ supplies at least one part to $j$, then the
+     $s$ supplies $p$ to $j$.
+   - This specifies the join constraint $JD(R_1, R_2, R_3)$ where $R_1$ is
+     supplier|part, $R_2$ is part|project, and $R_3$ is supplier|project.
+   - Joinin any two of suppliers, parts, and projects can create spurious
+     tuples, but joining all three maintains the nonadditive join property.
+
+
+   Result that is used more often: if a schema is in 3NF and all its keys are
+   single attributes, then it is also in 5NF.
+   
+
+* 15.1, 15.2
+
+* 16 (Not 16.2.3, 16.8.3, 16.10, 16.11)
+
+* 17 (Not 17.4, 17.5)

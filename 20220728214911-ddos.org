@@ -1,0 +1,113 @@
+:PROPERTIES:
+:ID:       05bf6934-58b4-4326-bd7c-1752ef12c558
+:END:
+#+title: DDOS
+* DDOS Attacks
+** Taxonomy
+   In DDOS scanning, compromised computers get...
+   - Random Scanning: random addresses to probe
+   - Permutation Scanning: pseudo-random permutation of a target address space
+   - Signpost Scanning: new targets by analyzing its traffic patterns
+   - Hitlist Scanning: a list of targets to attack
+
+
+   In DDOS spoofing, the attacker...
+   - Subnet Spoofing: Generates random addresses in the given address space
+   - Random Spoofing: Generates random 32-bit numbers to stamp packets with
+   - Fixed Spoofing: Uses the target's address
+
+
+   DDOS attack types:
+   - Server Application: Target a specific application on a server
+   - Network Access: Attempt to crash the communication mechanism of a network
+   - Infrastructure: Attack a crucial service to the internet (i.e. a core
+     router)
+** Goals
+   - Low effort, high effect
+   - How? Through amplification.
+** Amplification Attack
+   - Through bugs: allow one machine to take out a service
+   - Through flooding: use a botnet to generate a flood of requests
+
+
+   Amplification attacks can happen when:
+   1) A small command can generate a large response
+   2) Source IPs can be spoofed
+   3) It is difficult to verify legitimate servers
+** Example: SYN Flood
+   - Make SYNs with random source IPs and shoot them at the target until the
+     backlog queue fills up.
+   - Solution:
+     - Syncookies: choose a particular initial TCP sequence number that contains
+       more information
+       - =t=: slow timestamp (i.e. time() >> 6)
+       - =m=: maximum segment size value stored in the SYN queue entry
+       - =s=: hash of server IP:port, client IP:port, and =t= as 24 bits
+
+       - Then, the syn cookie = =t= mod 32 | =m= encoded to 3 bits | =s=
+       - When client ACKs the server's SYNACK, the client must send syncookie +
+         1. 
+       - We can subtract 1 from that, check =t= for expiry time, recompute =s=
+         to check validity, and decode =m= to make the SYN queue entry.
+       - Server can't use TCP options because we don't have a SYN queue entry anymore.
+** Example: Bot army SYN Flood
+   - Make SYNs with lots of bots.
+   - Solution: put proxy between web and server and only forward established
+     connections.
+   - Counterattack: flood with HTTP HEAD requests instead to make complete
+     connections.
+     - Not infallible: no more random src IPs, reveals location of bots, allows
+       proxy to block/rate-limit bots.
+** Example: BGP Hijacking
+   - Advertise the same or more specific route to steal traffic
+   - Solution: blackholing?
+** Mitigation: Client Puzzles
+   - Everyone has to do some work along with a request during DOS attacks in
+     order to slow down rate.
+   - ex: first data packet must contain the puzzle solution or else the
+     connection is closed
+   - Good to lower rate, but hurts clients with low compute.
+   - Puzzles should be stateless
+   - Puzzles should scale with attack intensity
+** Mitigation: CAPTCHA
+** Source identification
+   - Idea: Idntify packet source to block attack at source
+   - Ingress filtering: drop illegitimate traffic
+     - Only works if everyone does it, which they won't.
+   - Traceback: determine path to source, given control of lots of routers.
+     - Assuming the attacker sends many packets along a stable route, each
+       router adds its own IP to the packet with equal probability, then the
+       receiver (victim) eventually gets the whole path
+   - Edge Sampling:
+     Write these to packet:
+     - Edge: start and end IP
+     - Distance: number of hops since edge is stored
+     - When packet arrives, either write IP as start and dist 0 into packet or
+       if dist = 0, then write R into end and increment distance.
+** Reflector Attack
+   - Attacker uses victim's IP to send DNS query to lots of DNS servers
+   - DNS servers respond to victim
+   - Victim gets DNS flood
+
+     
+   More advanced:
+   - Attacker uses botnet to do this with more volume
+
+
+   Defense:
+   - Redundant servers in multiple locations
+   - Rate limit name server traffic
+** Capability based defense
+   - Receivers specify what packets they want.
+
+
+   Mechanism:
+   - SYN comes with capability request
+   - Receiver sends capability
+   - Sender sends capability in all future packets
+   - Then, routers only forward request packets and packets with correct
+     capabilities.
+   - Capabilities can be revoked if source attacks, blocking them near the
+     source.
+   
+

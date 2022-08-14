@@ -1,0 +1,357 @@
+* Lecture 3: Penetration Testing and Security Assessment
+** Overview  
+   - Pentesting is a test to evaluate the strength of all security controls
+     procedures, controls, technologies
+   - Benefits: security of network, discovery of vulnerabilities, and
+     demonstration of threats
+   - scope: social engineering, physical access, and tech
+   - testing includes entire network
+** Methodology
+   1) footprinting: get info about network
+   2) scanning: get detail about network like services
+   3) enumeration: more targeted information, like accounts
+   4) access: find and exploit vulnerabilities
+   5) escalate privilege: get admin or sudo
+   6) pilfering: get information from network
+   7) cover tracks: hide break-in
+   8) backdoor: create easier access
+** Footprinting
+   recon and info gathering
+   ip addresses
+   namespace
+   network topology
+
+   this info is necessary for subsequent steps
+** Scanning
+   find what machines are up and what ports are open
+   what services are running?
+   versions and configs
+   look up available vulnerabilities
+   focus on most promising entry routes
+   reduce scanning frequency and randomize ports &| ips to avoid detection
+** Enumeration
+   find poorly protected resource shares or user accounts
+** Gain access
+   ID vulnerability and exploit
+   can customize if needed
+   develop exploit if this is a new exploit
+** Escalate privilege
+   crack a password, exploit vulnerabilities in privilege
+** Pilfer
+   steal information, including information that makes subsequent entrances easier
+** Cover tracks
+   hide logs, hide malware
+** Backdoor
+   put trapdoors that let you back in
+   (new accounts, remote services)
+** Persistence and stealth
+   Advanced Persistent Threats: testers can install backdoors through malware
+
+   can place them in a proxy to listen and record, capture credentials, and id
+   targets.
+
+   can move these backdoors to hide tracks
+** Social Engineering
+   Users are the weakest link in security
+
+   id vulnerable user groups
+
+   find policy gaps, will have to fix them
+
+   effective because users can undermine their own security systems
+
+   abuses trust relations between employees
+
+   cheap to do 
+** RSA Flash Attack
+   identify vulnerable employees
+   craft email to get employees to open it
+   hide executable in excel sheet that intalls itself when opened
+** Social engineering techniques
+   - impersonate someone you'd give stuff to
+     - pretend to be an employee, ask helpdesk for password reset
+     - fake third party auth for network access
+     - pretend to be tech support
+     - walk around and find unsecured information
+     - disguise for physical access
+     - pretend to be a third party of authority
+   - computer techniques like popups, messages, attachments, scams, and chain emails
+     - Popups: pretend to be a login, get the stupid users
+     - IM/IRC to fake a support desk
+     - Email attachments
+     - Downloads
+       Email scams
+     - Require login and steal credentials, hoping for duplicates
+** Common attack targets: defense contractors, restaurants, software
+** Countering social engineering
+   - don't disclose passwords
+   - limit IT information disclosed
+   - limit information in auto-reply emails
+   - escort guests in sensitive areas
+   - question unknown people
+   - talk to employees about security
+* Lecture 4: Advanced Web Security
+** Goals
+   web security model
+
+   defense against webapp attacks
+
+   https goals and failures
+
+   content security policies and web workers
+** Attacks
+   - components with known vulns - attack vulnerable components
+   - missing function level access control - privilege functionality is hidden
+     but not enforced
+   - sensitive data exposure: - attack lack of encryption
+   - security misconfiguration - attack misconfigured servers
+   - insecure direct object references- rename files
+   - xss - insert javascript into trusted sites
+   - broken auth and session - allow bypassing authentication
+   - injection - send code to backend via mishandled user input
+** Goals of web security
+   - no stolen information
+   - sites cannot compromise other site sessions
+   - webapps should have same security properties as native apps
+** Web threat model
+   - attackers can set up malicious site
+   - attackers don't control the entire network
+** Network threat model
+   - attacker intercepts and controls entire network
+   - can drop, analyze, and intercept traffic
+** OWASP top 10 threats
+   1) injection
+   2) broken auth/session
+   3) xss
+   4) insecure direct object references
+   5) security misconfiguration
+   6) sensitive data exposure
+   7) missing function level access control 
+   8) cross site request forgery
+   9) using components with known vulnerabilities
+   10) unvalidated redirects and forwards
+** Threat models       
+*** Threat Models: web attackers
+    - attacker controls attacker.com
+    - obtains ssl/tsl certs so they can hit https users
+    - wait for user to visit attacker.com or runs their webapp, etc.
+    - passive
+*** Threat models: network attacker
+    - passive: wireless eavesdropping to get encryption keys
+    - active: insert evil router into network, DNS poisoning
+*** Threat models: malware attacker
+    - attack escapes browser and runs as a normal program
+    - browsers have exploitable bugs that can have remote code execution
+    - lots of vulnerabilities on the web itself
+** Modern Websites
+   They have active and static that can come from different sources.
+
+   Code can come from third parties and navigate to third parties.
+
+   Page developers, library developers, service providers, data providers, ad
+   providers, extension developers, other users, and CDNs can all influence
+   website code.
+
+   How can we protect information in the browser and ensure integrity?
+
+   How to protect page from ads/services
+
+   How to share data when wanted?
+
+   How to keep users separate?
+
+   How to protect page from library, cdn
+
+   How to protect browser extensions from page?
+
+   2015: active websites = 1B, 10k quarantine by google/day, 30k malicious
+   websites identified/day
+** Browsers
+   Operating systems support multiple applications sharing resources.
+
+   Same thing applies to web browsers.
+
+   Syscalls, processes and disks map are the primitives of OS, while browsers
+   have DOM, Frames, and cookies/local storage. Users have discretionary access
+   control, while browsers have origins and mandatory access control. OSs have
+   buffer overflows and root exploits, while browsers have xss, xsrf and cache
+   history attacks.
+
+   Execution model:
+
+   1) load content
+   2) Render content (process html, run scripts)
+   3) respond to events (user actions, render triggers, timers)
+
+
+   Browser security: sandbox content. Prevent javascript code from remote
+   websites from accessing files, OS, network, browser data, etc.
+
+   SAME ORIGIN POLICY: we can only read properties of documents and window from
+   the same protocol, domain, and port.
+
+   We can allow these privileges to signed scripts (universal browser
+   read/write, universal file read, universal send mail)
+** Same Origin Policy
+   - origin: protocol://domain:port/path?params
+   - SOP for DOM: origin A can access origin B's DOM if A and B have the same
+     protocol, domain, and port.
+   - SOP for cookies: protocol, domain, and path (protocol optional)
+** Frame security
+   Frames are rigid, iframes can float
+
+   Frames can show content from another source. Browsers provide isolation based
+   on frames, so even if the frame breaks, the whole page can still work.
+
+   Frame security is achieved through the SOP, and they can only access data
+   from their own origin.
+
+   Frame-frame relationships: we can specify this.
+   - canScript(A, B): A can execute a script that manipulates DOM of Frame B
+   - canNavigate(A, B): A can change the origin of content for frame B.
+
+
+   Frame-Principle relationships:
+   - readCookie(A, S) (or write): can frame A r/w cookies from site S?
+** Browsing Context
+   - A frame and its DOM
+   - A web worker (thread), which has no DOM (this is javascript that runs in
+     the background of an html page, independent of the user interface)
+
+
+   contexts each have origin, they are separated by SOP. Can communicate with
+   each other using postMessage, and can make network requests with XHR or tags
+
+   XMLHttpRequest: javascript api to create ajax requests. Generally used to
+   request from web servers.
+
+   Modern Structuring Mechanisms
+   - HTML5 iframe sandbox: load with unique origin, limited privileges
+   - Content Security Policy (CSP): whitelist instructing browser to only
+     execute or render resources from specific sources
+   - CORS: relax same-origin restrictions
+   - HTML5 web workers: separate thread; isolated but same origin. Not intended
+     for security originally.
+
+
+   Sandbox: unique origin, no js, no forms, no apis, no plugins, etc.
+
+   Sandbox perms for iframes:
+   - allow-forms
+   - allow-popups
+   - allow-pointer-lock (mouse moves)
+   - allow-same-origin (allows keeping origin)
+   - allow-scripts (allow javascript execution)
+   - allow-top-navigation (allow breaking from frame)
+** Content Security Policy
+   - Goal: prevent and limit damage of XSS
+   - XSS bypasses SOP by tricking site into delivering malicious code with
+     intended content.
+   - ex. website echos user input (which can be code)
+   - approach: restrict resource loading to a whitelist
+   - Prohibits inline scripts, inline event handlers, javascript,  URLs, =eval=,
+     =new Function()=, etc.
+   - We can specify whitelists for different kinds of content
+   - Sources of web content can be specified and matched by scheme, hostname,
+     and full URI.
+** Web workers
+   Run in isolated thread, loaded from a separate file.
+
+   Same origin as frame that creates it, but has no DOM. Communicates with
+   =postMessage=.
+** SubResource Integrity
+   Pages pull scripts and styles from many services and CDNs.
+   How to ensure integrity of loaded content?
+   Don't want evil content from DNS poisoning or modifications from the CDNs
+
+   Author of content specifies hash of (sub)resource they are loading. Browser
+   checks against hash.
+
+   On failure, report violation and do nothing.
+   Orrrrr if CSP sets integrity-policy to report, then report and still execute.
+** CORS (cross origin resource sharing)
+   An entity has multiple domains, so we want to be able to share resources
+   between them, but still disallow others.
+
+   CORS allows javascript on a web page to consume content from a different
+   origin. A whitelist is used to allow sharing with certain domains.
+
+   XHR request is sent with Origin header. Server checks Origin and responds
+   with Access-Control-Allow-Origin header, specifying what origins are allowed
+   to access.
+** SOP review
+   combination of URI scheme, hostname, and port number (https://example.org:80)
+
+   A can access B's DOM if they agree on protocol, domain, and port.
+   For cookie, they must agree on scheme, domain, and path, scheme being
+   optional.
+** SOP cookies
+   server sets cookie when browser accesses server
+
+   attributes the server can set: SameSite: lax | strict (on post request,
+   always/never send cookie on cross site POST)
+   
+   cookies also have scope.
+** Scope Setting Rules
+   login.site.com can set cookies for all of .site.com but not for another site
+   or TLD
+
+   Allowed domains: login.site.com, site.com
+   Disallowed: other.site.com, .com
+
+   Domains are identified by (name, domain, and path)
+
+   Browsers send cookies in path, servers only see scoped cookies.
+
+   c1 = name: userid, value: u1, domain: login.site.com, path: /, secure
+   c2 = name: userid, value: u2, domain: .site.com, path: /, not-secure
+
+   http://checkout.site.com/: userid=u2
+   http://login.site.com/: userid=u2
+   https://login.site.com/: userid=u1, userid=u2
+
+   
+   client side r/w of document.cookie:
+   can set cookie value, read cookie value, and delete cookies
+
+   HttpOnly cookies are not included in document.cookie and can't be accessed by
+   client-side scripts
+** Types of cookies:
+   - Super cookie: Cookie with TLD origin
+   - Zombie: regenerates after deletion
+   - SameSite: only sent in requests originating from the same origin as target
+     domain
+   - HttpOnly: cannot be accessed by client
+   - Third-Party: belongs to different domain
+   - Session: in-memory cookie, deleted when browser is closed
+   - Persistent: cookie w/o expiration date or time, aka tracking cookie
+   - Secure: can only be transmitted over encrypted connection
+** Cookie protocol problems
+   - server is blind and can't see cookie attributes.
+   - Doesn't see which domain set the cookie, only sees value.
+
+
+   Exploitable: alice logs in to legit site, then an evil site. evil site
+   overwrites alice's session cookie with Eva's session cookie. when alice
+   returns to the legit site, it thinks she's Eva.
+
+   HTTPS cookie values cannot be trusted.
+
+   Path separation is done for efficiency but not security.
+
+   x.com/A can't see cookies of x.com/B, but x.com/A can still access DOM of
+   x.com/B.
+
+   cookies have no integrity; users can change and delete cookie values
+** Checksums
+   Server has key and generates hash of cookie value that it checks later. Hash
+   is attached to cookie value when it sends to browser. Works because browser
+   can't get secret key to generate its own tags.
+
+   - Crypo hash functions that aren't one-way are vulnerable to preimage attacks
+   - Difficult hash function is one that is hard to analyze.
+   - GOod crypto functions employ the avalanche effect (noncorrelation of input
+     and output)
+   
+** 
+
