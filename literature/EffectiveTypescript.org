@@ -1,0 +1,52 @@
+* Effective Typescript
+** 1. Getting to Know TypeScript
+*** Item 1: TS relation to JS
+    It's important to know that TS is a superset of JS. All JS programs are valid
+    TS, but NOT all valid JS programs typecheck, which is generally what we
+    intend. Programs that typecheck generally avoid the weirdness of JS.
+*** Item 2: TS options
+    - ~noImplicitAny~: variables must have known types.
+      This snippet is valid only if ~noImplicitAny~ is off.
+      #+begin_src typescript
+        function add(a, b) {
+            return a + b;
+        }
+      #+end_src
+    - ~strictNullChecks~: variables can always be ~null~ or ~undefined~
+      This snippet is valid only if ~strictNullChecks~ is off.
+      #+begin_src typescript
+        const x: number = null;
+      #+end_src
+    - There are others, but these are the most important to know. They are
+      configured in ~tsconfig.json~.
+*** Item 3: Code Generation is Independent of Types
+    - Unless ~noEmitOnError~ is enabled, ~tsc~ will generate JS code as long as
+      it's valid JS, even if it doesn't typecheck.
+    - /Types don't exist at runtime/: if you want to have runtime type
+      information, either write types as classes, or use tagged unions.
+    - Type assertions don't do anytihng at runtime: using ~as X~ just tells the
+      TS compiler that we know something is of type ~X~ due to information the
+      compiler lacks.
+    - Runtime types might be different than declared: it is possible for others
+      to use your function with different types than expected.
+*** Item 4: Structural Typing
+    - Duck typing: if a function gets an object with all the right properties,
+      it'll work.
+    - Typescript will model this behavior - if you have
+
+      #+begin_src typescript
+        type Vec2 = { x: number, y: number };
+        type Vec3 = { x: number, y: number, z: number};
+      #+end_src
+
+      then in the end we'll have every ~Vec3~ also being a ~Vec2~.
+
+    - Sealed/precise type: a member of such a type will have certain properties
+      and NO OTHERS.
+    - Open type: a member of this type has these properties and possibly more.
+    - Advantages: we can define interfaces that model more complicated types,
+      and create mock objects with the simpler interface when testing.
+*** Item 5: ~any~ is for the Weak
+    - It lets you escape the type system.
+** 2. TypeScript's Type System
+*** Item 6: Use your language server!
